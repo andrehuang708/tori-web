@@ -1,0 +1,1 @@
+__ci_last_regenerate|i:1763836538;_ci_previous_url|s:41:"http://localhost:8080/admin/orders/view/3";admin_id|s:1:"1";admin_name|s:13:"Administrator";admin_email|s:17:"admin@example.com";admin_role|s:11:"super_admin";isAdminLoggedIn|b:1;last_activity|i:1763836257;shopping_cart|a:3:{s:5:"items";a:0:{}s:11:"total_items";i:0;s:11:"total_price";d:0;}__ci_vars|a:0:{}
