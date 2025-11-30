@@ -13,10 +13,24 @@ class Cart extends BaseController
      */
     public function index()
     {
+        $cartItems = $this->cart->contents();
+        $cartSummary = $this->cart->summary();
+        
+        // Debug logging
+        log_message('debug', 'Cart Items: ' . json_encode($cartItems));
+        log_message('debug', 'Cart Summary: ' . json_encode($cartSummary));
+        
+        // Calculate total manually as fallback
+        $totalPrice = 0;
+        foreach ($cartItems as $item) {
+            $totalPrice += $item['price'] * $item['quantity'];
+        }
+        
         $data = [
             'title' => 'Shopping Cart',
-            'cartItems' => $this->cart->contents(),
-            'subtotal' => $this->cart->totalPrice(),
+            'cartItems' => $cartItems,
+            'cartSummary' => $cartSummary,
+            'subtotal' => $totalPrice,
             'status' => 'pending'
         ];
         
@@ -154,6 +168,13 @@ class Cart extends BaseController
      */
     public function checkout()
     {
+        // Check if user is logged in
+        if (!session()->get('logged_in')) {
+            // Store intended URL for redirect after login
+            session()->set('intended_url', 'cart/checkout');
+            return redirect()->to('login')->with('error', 'Please login to proceed with checkout');
+        }
+        
         // Check if cart is empty
         $cartItems = $this->cart->contents();
         if (empty($cartItems)) {
@@ -174,10 +195,22 @@ class Cart extends BaseController
             return $this->redirectWithMessage('cart', 'Beberapa produk kehabisan stok: ' . implode(', ', $outOfStock), 'danger');
         }
         
+        // Pre-fill user data from session
+        $firstName = session()->get('first_name') ?? '';
+        $lastName = session()->get('last_name') ?? '';
+        $fullName = trim($firstName . ' ' . $lastName);
+        
+        $userData = [
+            'name' => $fullName ?: (session()->get('user_name') ?? ''),
+            'email' => session()->get('user_email') ?? '',
+            'phone' => session()->get('user_phone') ?? ''
+        ];
+        
         $data = [
             'cart_items' => $cartItems,
             'cart_summary' => $this->cart->summary(),
-            'validation' => \Config\Services::validation()
+            'validation' => \Config\Services::validation(),
+            'user_data' => $userData
         ];
         
         return view('cart/checkout', $data);
@@ -188,6 +221,11 @@ class Cart extends BaseController
      */
     public function processCheckout()
     {
+        // Check if user is logged in
+        if (!session()->get('logged_in')) {
+            return redirect()->to('login')->with('error', 'Please login to proceed with checkout');
+        }
+        
         // Validate form
         $rules = [
             'customer_name' => 'required|min_length[3]|max_length[100]',
@@ -226,8 +264,9 @@ class Cart extends BaseController
             // Create order
             $orderModel = new OrderModel();
             $orderData = [
-                'order_number' => 'ORD-' . date('Ymd') . '-' . strtoupper(substr(uniqid(), -6)),
+                'order_number' => 'TORI-' . date('Ymd') . '-' . strtoupper(substr(uniqid(), -4)),
                 'customer_name' => $this->request->getPost('customer_name'),
+                'customer_email' => session()->get('user_email'), // Use logged-in user's email
                 'customer_phone' => $this->request->getPost('customer_phone'),
                 'payment_method' => $this->request->getPost('payment_method'),
                 'address' => $this->request->getPost('address') ?? '',

@@ -40,8 +40,21 @@
                                     <?php foreach ($cartItems as $id => $item): ?>
                                         <tr>
                                             <td>
-                                                <img src="<?= !empty($item['image']) ? base_url('uploads/products/' . $item['image']) : 'https://via.placeholder.com/100' ?>" 
-                                                     alt="<?= esc($item['name']) ?>" class="img-fluid">
+                                                <div style="width: 100px; height: 100px; position: relative;">
+                                                    <?php if (!empty($item['image'])): ?>
+                                                        <img src="<?= base_url('uploads/products/' . $item['image']) ?>" 
+                                                             alt="<?= esc($item['name']) ?>" class="img-fluid"
+                                                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                                                             style="width: 100px; height: 100px; object-fit: cover;">
+                                                        <div style="display: none; width: 100px; height: 100px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #6c757d;">
+                                                            <i class="fas fa-image" style="font-size: 2rem; opacity: 0.5;"></i>
+                                                        </div>
+                                                    <?php else: ?>
+                                                        <div style="width: 100px; height: 100px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #6c757d;">
+                                                            <i class="fas fa-image" style="font-size: 2rem; opacity: 0.5;"></i>
+                                                        </div>
+                                                    <?php endif; ?>
+                                                </div>
                                             </td>
                                             <td>
                                                 <a href="<?= site_url('products/' . $item['id']) ?>">
@@ -49,7 +62,12 @@
                                                 </a>
                                             </td>
                                             <td class="text-center">
-                                                <?= 'Rp ' . number_format($item['price'], 0, ',', '.') ?>
+                                                <div>
+                                                    <?= 'Rp ' . number_format($item['price'], 0, ',', '.') ?>
+                                                    <?php if (!empty($item['po_price_desc']) && $item['po_price_desc'] > 0): ?>
+                                                        <div class="text-muted small">PO: Rp <?= number_format($item['po_price_desc'], 0, ',', '.') ?></div>
+                                                    <?php endif; ?>
+                                                </div>
                                             </td>
                                             <td>
                                                 <form action="<?= site_url('cart/update') ?>" method="post" class="update-cart-form">
@@ -87,7 +105,7 @@
                                     <tr>
                                         <td colspan="4" class="text-right"><strong>Total:</strong></td>
                                         <td class="text-right">
-                                            <strong><?= 'Rp ' . number_format($cartSummary['total_price'] ?? 0, 0, ',', '.') ?></strong>
+                                            <strong><?= 'Rp ' . number_format($cartSummary['total_price'] ?? $subtotal ?? 0, 0, ',', '.') ?></strong>
                                         </td>
                                         <td></td>
                                     </tr>

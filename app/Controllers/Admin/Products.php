@@ -16,12 +16,6 @@ class Products extends BaseController
     {
         $this->productModel = new ProductModel();
         $this->categoryModel = new CategoryModel();
-        
-        // Ensure admin is logged in
-        $session = session();
-        if (!$session->has('isAdminLoggedIn') || $session->get('isAdminLoggedIn') !== true) {
-            return redirect()->to('/admin/login')->with('error', 'You must be logged in as admin to access this page.');
-        }
     }
     
     /**
@@ -47,6 +41,12 @@ class Products extends BaseController
     // }
     public function index()
 {
+    // Ensure admin is logged in
+    $session = session();
+    if (!$session->has('isAdminLoggedIn') || $session->get('isAdminLoggedIn') !== true) {
+        return redirect()->to('/admin/login')->with('error', 'You must be logged in as admin to access this page.');
+    }
+    
     if ($this->request->isAJAX()) {
         $draw = $this->request->getPost('draw');
         $start = (int)$this->request->getPost('start');
@@ -87,6 +87,12 @@ class Products extends BaseController
      */
     public function create()
     {
+        // Ensure admin is logged in
+        $session = session();
+        if (!$session->has('isAdminLoggedIn') || $session->get('isAdminLoggedIn') !== true) {
+            return redirect()->to('/admin/login')->with('error', 'You must be logged in as admin to access this page.');
+        }
+        
         $data = [
             'categories' => $this->categoryModel->findAll()
         ];
@@ -99,6 +105,12 @@ class Products extends BaseController
      */
     public function edit($id = null)
     {
+        // Ensure admin is logged in
+        $session = session();
+        if (!$session->has('isAdminLoggedIn') || $session->get('isAdminLoggedIn') !== true) {
+            return redirect()->to('/admin/login')->with('error', 'You must be logged in as admin to access this page.');
+        }
+        
         if ($id === null) {
             return redirect()->to('/admin/products')->with('error', 'Product ID is required');
         }
@@ -122,6 +134,12 @@ class Products extends BaseController
      */
     public function save()
     {
+        // Ensure admin is logged in
+        $session = session();
+        if (!$session->has('isAdminLoggedIn') || $session->get('isAdminLoggedIn') !== true) {
+            return redirect()->to('/admin/login')->with('error', 'You must be logged in as admin to access this page.');
+        }
+        
         $id = $this->request->getPost('id');
         
         // Validation rules
@@ -132,12 +150,19 @@ class Products extends BaseController
             'description' => 'permit_empty',
             'price' => 'required|numeric|greater_than_equal_to[0]',
             'stock' => 'required|integer|greater_than_equal_to[0]',
+            'po_price_desc_raw' => 'permit_empty|numeric|greater_than_equal_to[0]',
             'image' => 'max_size[image,2048]|is_image[image]|mime_in[image,image/jpg,image/jpeg,image/png,image/gif]',
+            'product_status' => 'required|in_list[ACTIVE,DEACTIVE]',
         ];
         
         if ($this->validate($rules)) {
             // Get the raw price value from the hidden input
             $price = $this->request->getPost('price_raw') ?: '0';
+            
+            // Debug logging
+            log_message('debug', 'POST Data: ' . json_encode($this->request->getPost()));
+            log_message('debug', 'PO Price Raw: ' . $this->request->getPost('po_price_desc_raw'));
+            log_message('debug', 'PO Price Desc: ' . $this->request->getPost('po_price_desc'));
             
             // Generate SKU if not provided
             $sku = $this->request->getPost('sku');
@@ -155,8 +180,13 @@ class Products extends BaseController
                 'description' => $this->request->getPost('description'),
                 'price' => $price,
                 'stock' => $this->request->getPost('stock'),
-                'slug' => url_title($this->request->getPost('name'), '-', true)
+                'slug' => url_title($this->request->getPost('name'), '-', true),
+                'po_price_desc' => $this->request->getPost('po_price_desc_raw') ?: null,
+                'product_status' => $this->request->getPost('product_status') ?: 'ACTIVE'
             ];
+            
+            // Debug logging for data array
+            log_message('debug', 'Data to save: ' . json_encode($data));
             
             // Handle image upload
             $image = $this->request->getFile('image');
@@ -187,15 +217,90 @@ class Products extends BaseController
             
             // Save product
             if (empty($id)) {
-                $this->productModel->insert($data);
-                $message = 'Product added successfully';
+                try {
+                    $result = $this->productModel->insert($data);
+                    log_message('debug', 'Insert result: ' . $result);
+                    $message = 'Product added successfully';
+                } catch (\Exception $e) {
+                    log_message('error', 'Insert error: ' . $e->getMessage());
+                    return redirect()->back()->with('error', 'Failed to add product: ' . $e->getMessage());
+                }
             } else {
-                $this->productModel->update($id, $data);
-                $message = 'Product updated successfully';
+                try {
+                    log_message('debug', 'Updating product ID: ' . $id);
+                    log_message('debug', 'Update data: ' . json_encode($data));
+                    
+                    // Check if product exists first
+                    $existingProduct = $this->productModel->find($id);
+                    if (!$existingProduct) {
+                        log_message('error', 'Product not found for update: ' . $id);
+                        return redirect()->back()->with('error', 'Product not found');
+                    }
+                    
+                    log_message('debug', 'Existing product data: ' . json_encode($existingProduct));
+                    log_message('debug', 'New data to update: ' . json_encode($data));
+                    
+                    // Check what's actually different
+                    $changes = [];
+                    foreach ($data as $key => $value) {
+                        if (isset($existingProduct[$key]) && $existingProduct[$key] != $value) {
+                            $changes[$key] = [
+                                'old' => $existingProduct[$key],
+                                'new' => $value
+                            ];
+                        } elseif (!isset($existingProduct[$key])) {
+                            $changes[$key] = [
+                                'old' => 'NOT SET',
+                                'new' => $value
+                            ];
+                        }
+                    }
+                    
+                    log_message('debug', 'Detected changes: ' . json_encode($changes));
+                    
+                    $result = $this->productModel->update($id, $data);
+                    log_message('debug', 'Update result: ' . var_export($result, true));
+                    
+                    // If update returns false but we have changes, try direct query
+                    if (!$result && !empty($changes)) {
+                        log_message('debug', 'Standard update failed, trying direct query');
+                        try {
+                            $db = \Config\Database::connect();
+                            $builder = $db->table('products');
+                            $directResult = $builder->where('id', $id)->update($data);
+                            log_message('debug', 'Direct query result: ' . var_export($directResult, true));
+                            
+                            if ($directResult) {
+                                $result = true;
+                                log_message('debug', 'Direct query succeeded');
+                            }
+                        } catch (\Exception $e) {
+                            log_message('error', 'Direct query error: ' . $e->getMessage());
+                        }
+                    }
+                    
+                    // Verify the update actually happened
+                    $updatedProduct = $this->productModel->find($id);
+                    log_message('debug', 'Updated product PO price: ' . ($updatedProduct['po_price_desc'] ?? 'NULL'));
+                    
+                    if ($result) {
+                        $message = 'Product updated successfully';
+                    } else {
+                        log_message('error', 'Update returned false but no error thrown');
+                        return redirect()->back()->with('error', 'Failed to update product - no changes made');
+                    }
+                } catch (\Exception $e) {
+                    log_message('error', 'Update error: ' . $e->getMessage());
+                    return redirect()->back()->with('error', 'Failed to update product: ' . $e->getMessage());
+                }
             }
             
             return redirect()->to('/admin/products')->with('success', $message);
         } else {
+            // Debug validation errors
+            $validation = \Config\Services::validation();
+            log_message('debug', 'Validation errors: ' . json_encode($validation->getErrors()));
+            
             $this->setValidationErrors();
             return redirect()->back()->withInput();
         }

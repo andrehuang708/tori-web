@@ -27,6 +27,7 @@
                                     <th>Stock</th>
                                     <th>Category</th>
                                     <th>Featured</th>
+                                    <th>Status</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
@@ -37,10 +38,20 @@
                                             <td>
                                                 <div class="d-flex align-items-center">
                                                     <?php if (!empty($product['image'])) : ?>
-                                                        <img src="<?= base_url('uploads/products/' . $product['image']) ?>" 
-                                                             alt="<?= esc($product['name']) ?>" 
-                                                             class="img-thumbnail mr-3" 
-                                                             style="width: 50px; height: 50px; object-fit: cover;">
+                                                        <div style="margin-right: 12px;">
+                                                            <img src="<?= base_url('uploads/products/' . $product['image']) ?>" 
+                                                                 alt="<?= esc($product['name']) ?>" 
+                                                                 class="img-thumbnail" 
+                                                                 style="width: 50px; height: 50px; object-fit: cover;"
+                                                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                                        </div>
+                                                        <div class="img-thumbnail" style="width: 50px; height: 50px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border: 1px solid #dee2e6; border-radius: 4px; display: none; align-items: center; justify-content: center; color: #6c757d; margin-right: 12px;">
+                                                            <i class="fas fa-image" style="font-size: 1rem; opacity: 0.5;"></i>
+                                                        </div>
+                                                    <?php else: ?>
+                                                        <div class="img-thumbnail" style="width: 50px; height: 50px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border: 1px solid #dee2e6; border-radius: 4px; display: flex !important; align-items: center; justify-content: center; color: #6c757d; margin-right: 12px;">
+                                                            <i class="fas fa-image" style="font-size: 1rem; opacity: 0.5;"></i>
+                                                        </div>
                                                     <?php endif; ?>
                                                     <div>
                                                         <h6 class="mb-0"><?= esc($product['name']) ?></h6>
@@ -48,7 +59,14 @@
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td>Rp <?= number_format($product['price'], 0, ',', '.') ?></td>
+                                            <td>
+                                                <div>
+                                                    DP : Rp <?= number_format($product['price'], 0, ',', '.') ?>
+                                                    <?php if (!empty($product['po_price_desc']) && $product['po_price_desc'] > 0): ?>
+                                                        <div class="text-muted small"><b>PO: Rp <?= number_format($product['po_price_desc'], 0, ',', '.') ?></b></div>
+                                                    <?php endif; ?>
+                                                </div>
+                                            </td>
                                             <td>
                                                 <span class="badge badge-<?= $product['stock'] > 0 ? 'success' : 'danger' ?>">
                                                     <?= $product['stock'] ?> in stock
@@ -61,6 +79,11 @@
                                                 </span>
                                             </td>
                                             <td>
+                                                <span class="badge badge-<?= $product['product_status'] === 'ACTIVE' ? 'success' : 'danger' ?>">
+                                                    <?= $product['product_status'] ?? 'ACTIVE' ?>
+                                                </span>
+                                            </td>
+                                            <td>
                                                 <a href="<?= site_url('admin/products/edit/' . $product['id']) ?>" class="btn btn-sm btn-info">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
@@ -69,6 +92,12 @@
                                                         data-status="<?= $product['is_featured'] ?>">
                                                     <i class="fas fa-<?= $product['is_featured'] ? 'star' : 'star' ?>"></i>
                                                 </button>
+                                                <a href="https://wa.me/?text=<?= urlencode('Check out this product: ' . $product['name'] . "\n" . 'DP: Rp ' . number_format($product['price'], 0, ',', '.') . (!empty($product['po_price_desc']) && $product['po_price_desc'] > 0 ? "\nHarga PO : Rp " . number_format($product['po_price_desc'], 0, ',', '.') : '') . "\n" . 'View details: ' . site_url('products/detail/' . $product['slug'])) ?>" 
+                                                   target="_blank" 
+                                                   class="btn btn-sm btn-success"
+                                                   title="Share on WhatsApp">
+                                                    <i class="fab fa-whatsapp"></i>
+                                                </a>
                                                 <a href="<?= site_url('admin/products/delete/' . $product['id']) ?>" 
                                                    class="btn btn-sm btn-danger" 
                                                    onclick="return confirm('Are you sure you want to delete this product?')">
@@ -143,9 +172,19 @@ $(document).ready(function() {
                 render: function(data, type, row) {
                     var imageHtml = '';
                     if (row.image) {
-                        imageHtml = '<img src="<?= base_url('uploads/products/') ?>' + row.image + 
-                                   '" alt="' + row.name + '" class="img-thumbnail mr-3" ' +
-                                   'style="width: 50px; height: 50px; object-fit: cover;">';
+                        imageHtml = '<div style="position: relative; width: 50px; height: 50px; margin-right: 12px;">' +
+                                   '<img src="<?= base_url('uploads/products/') ?>' + row.image + 
+                                   '" alt="' + row.name + '" class="img-thumbnail" ' +
+                                   'style="width: 50px; height: 50px; object-fit: cover;" ' +
+                                   'onerror="this.style.display=\'none\'; this.nextElementSibling.style.display=\'flex\';">' +
+                                   '<div style="display: none; width: 50px; height: 50px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #6c757d;">' +
+                                   '<i class="fas fa-image" style="font-size: 1rem; opacity: 0.5;"></i>' +
+                                   '</div>' +
+                                   '</div>';
+                    } else {
+                        imageHtml = '<div style="width: 50px; height: 50px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #6c757d; margin-right: 12px;">' +
+                                   '<i class="fas fa-image" style="font-size: 1rem; opacity: 0.5;"></i>' +
+                                   '</div>';
                     }
                     return '<div class="d-flex align-items-center">' +
                            imageHtml +

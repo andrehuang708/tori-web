@@ -74,14 +74,15 @@
                                     <th>Category</th>
                                     <th>Price</th>
                                     <th>Stock</th>
-                                    <th>Status</th>
+                                    <th>Product Status</th>
+                                    <th>Featured</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php if (empty($products)) : ?>
                                     <tr>
-                                        <td colspan="7" class="text-center">No products found matching your criteria</td>
+                                        <td colspan="8" class="text-center">No products found matching your criteria</td>
                                     </tr>
                                 <?php else : ?>
                                     <?php $i = 1; foreach ($products as $product) : ?>
@@ -93,7 +94,15 @@
                                                         <img src="<?= base_url('uploads/products/' . $product['image']) ?>" 
                                                              alt="<?= esc($product['name']) ?>" 
                                                              class="img-thumbnail mr-3" 
-                                                             style="width: 50px; height: 50px; object-fit: cover;">
+                                                             style="width: 50px; height: 50px; object-fit: cover;"
+                                                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                                        <div style="display: none; width: 50px; height: 50px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #6c757d; margin-right: 12px;">
+                                                            <i class="fas fa-image" style="font-size: 1rem; opacity: 0.5;"></i>
+                                                        </div>
+                                                    <?php else: ?>
+                                                        <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #6c757d; margin-right: 12px;">
+                                                            <i class="fas fa-image" style="font-size: 1rem; opacity: 0.5;"></i>
+                                                        </div>
                                                     <?php endif; ?>
                                                     <div>
                                                         <h6 class="mb-0"><?= esc($product['name']) ?></h6>
@@ -102,10 +111,22 @@
                                                 </div>
                                             </td>
                                             <td><?= esc($product['category_name'] ?? 'Uncategorized') ?></td>
-                                            <td>Rp <?= number_format($product['price'], 0, ',', '.') ?></td>
+                                            <td>
+                                                <div>
+                                                    Rp <?= number_format($product['price'], 0, ',', '.') ?>
+                                                    <?php if (!empty($product['po_price_desc']) && $product['po_price_desc'] > 0): ?>
+                                                        <div class="text-muted small">PO: Rp <?= number_format($product['po_price_desc'], 0, ',', '.') ?></div>
+                                                    <?php endif; ?>
+                                                </div>
+                                            </td>
                                             <td>
                                                 <span class="badge badge-<?= $product['stock'] > 0 ? 'success' : 'danger' ?>">
                                                     <?= $product['stock'] ?> in stock
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span class="badge badge-<?= $product['product_status'] === 'ACTIVE' ? 'success' : 'danger' ?>">
+                                                    <?= $product['product_status'] ?? 'ACTIVE' ?>
                                                 </span>
                                             </td>
                                             <td>

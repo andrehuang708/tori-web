@@ -303,7 +303,18 @@ $this->section('content');
                             ?>
                             <li class="item">
                                 <div class="product-img">
-                                    <img src="<?= base_url('uploads/products/' . $image) ?>" alt="Product Image" class="img-size-50">
+                                    <?php if (!empty($image) && $image !== 'default-product.jpg'): ?>
+                                        <img src="<?= base_url('uploads/products/' . $image) ?>" alt="Product Image" class="img-size-50"
+                                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                                             style="width: 50px; height: 50px; object-fit: cover;">
+                                        <div style="display: none; width: 50px; height: 50px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #6c757d;">
+                                            <i class="fas fa-image" style="font-size: 1rem; opacity: 0.5;"></i>
+                                        </div>
+                                    <?php else: ?>
+                                        <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #6c757d;">
+                                            <i class="fas fa-image" style="font-size: 1rem; opacity: 0.5;"></i>
+                                        </div>
+                                    <?php endif; ?>
                                 </div>
                                 <div class="product-info">
                                     <a href="javascript:void(0)" class="product-title">

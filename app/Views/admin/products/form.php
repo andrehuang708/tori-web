@@ -66,10 +66,36 @@
                         </div>
                         
                         <div class="form-group">
+                            <label for="po_price_desc">PO Price (IDR)</label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">Rp</span>
+                                </div>
+                                <input type="text" name="po_price_desc" id="po_price_desc" class="form-control price-input" 
+                                       value="<?= old('po_price_desc', isset($product['po_price_desc']) ? number_format($product['po_price_desc'], 0, ',', '.') : '') ?>">
+                                <input type="hidden" id="po_price_desc_raw" name="po_price_desc_raw">
+                            </div>
+                            <small class="form-text text-muted">Optional. Example: 850.000</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="product_status">Product Status</label>
+                            <select name="product_status" id="product_status" class="form-control">
+                                <option value="ACTIVE" <?= (isset($product['product_status']) && $product['product_status'] === 'ACTIVE') ? 'selected' : '' ?>>ACTIVE</option>
+                                <option value="DEACTIVE" <?= (isset($product['product_status']) && $product['product_status'] === 'DEACTIVE') ? 'selected' : '' ?>>DEACTIVE</option>
+                            </select>
+                            <small class="form-text text-muted">
+                                ACTIVE = Visible to users<br>
+                                DEACTIVE = Hidden from users
+                            </small>
+                        </div>
+                        
+                        <div class="form-group">
                             <label for="image">Product Image</label>
                             <?php if (isset($product) && !empty($product['image'])): ?>
                                 <div class="mb-2">
-                                    <img src="/<?= $product['image'] ?>" alt="Product Image" style="max-width: 200px;" class="img-thumbnail">
+                                    <img src="/uploads/products/<?= $product['image'] ?>" alt="Product Image" style="max-width: 200px;" class="img-thumbnail">
+                                    <input type="hidden" name="old_image" value="<?= $product['image'] ?>">
                                 </div>
                             <?php endif; ?>
                             <div class="custom-file">
@@ -107,21 +133,42 @@
     document.addEventListener('DOMContentLoaded', function() {
         const priceInput = document.getElementById('price');
         const priceRaw = document.getElementById('price_raw');
+        const poPriceInput = document.getElementById('po_price_desc');
+        const poPriceRaw = document.getElementById('po_price_desc_raw');
         
-        // Format on page load
+        // Format regular price on page load
         if (priceInput) {
             formatPrice(priceInput);
         }
         
-        // Format on input
-        priceInput.addEventListener('input', function(e) {
-            formatPrice(e.target);
-        });
+        // Format PO price on page load
+        if (poPriceInput) {
+            formatPoPrice(poPriceInput);
+        }
         
-        // Format on blur to ensure proper formatting
-        priceInput.addEventListener('blur', function(e) {
-            formatPrice(e.target, true);
-        });
+        // Format regular price on input
+        if (priceInput) {
+            priceInput.addEventListener('input', function(e) {
+                formatPrice(e.target);
+            });
+            
+            // Format on blur to ensure proper formatting
+            priceInput.addEventListener('blur', function(e) {
+                formatPrice(e.target, true);
+            });
+        }
+        
+        // Format PO price on input
+        if (poPriceInput) {
+            poPriceInput.addEventListener('input', function(e) {
+                formatPoPrice(e.target);
+            });
+            
+            // Format on blur to ensure proper formatting
+            poPriceInput.addEventListener('blur', function(e) {
+                formatPoPrice(e.target, true);
+            });
+        }
         
         // Format price function
         function formatPrice(input, blur = false) {
@@ -129,7 +176,9 @@
             let value = input.value.replace(/\D/g, '');
             
             // Store raw value in hidden field
-            priceRaw.value = value || '0';
+            if (priceRaw) {
+                priceRaw.value = value || '0';
+            }
             
             // Format with thousands separators
             if (value) {
@@ -141,15 +190,54 @@
             input.value = value || '0';
         }
         
+        // Format PO price function
+        function formatPoPrice(input, blur = false) {
+            // Remove non-numeric characters
+            let value = input.value.replace(/\D/g, '');
+            
+            // Store raw value in hidden field
+            if (poPriceRaw) {
+                poPriceRaw.value = value || '';
+            }
+            
+            // Format with thousands separators
+            if (value) {
+                value = parseInt(value).toString();
+                value = value.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+            }
+            
+            // Update input value (leave empty if no value)
+            input.value = value || '';
+        }
+        
         // Handle form submission to remove dots before sending
         const form = document.querySelector('form');
         if (form) {
             form.addEventListener('submit', function(e) {
                 const priceInput = document.getElementById('price');
+                const poPriceInput = document.getElementById('po_price_desc');
+                const poPriceRaw = document.getElementById('po_price_desc_raw');
+                
+                // Debug logging
+                console.log('Form submission debug:');
+                console.log('Price Input:', priceInput ? priceInput.value : 'not found');
+                console.log('PO Price Input:', poPriceInput ? poPriceInput.value : 'not found');
+                console.log('PO Price Raw:', poPriceRaw ? poPriceRaw.value : 'not found');
+                
                 if (priceInput) {
                     // Remove all non-numeric characters before submission
                     priceInput.value = priceInput.value.replace(/\D/g, '');
                 }
+                
+                if (poPriceInput) {
+                    // Remove all non-numeric characters before submission
+                    poPriceInput.value = poPriceInput.value.replace(/\D/g, '');
+                }
+                
+                // Final debug after cleanup
+                console.log('After cleanup:');
+                console.log('PO Price Input:', poPriceInput ? poPriceInput.value : 'not found');
+                console.log('PO Price Raw:', poPriceRaw ? poPriceRaw.value : 'not found');
             });
         }
     });

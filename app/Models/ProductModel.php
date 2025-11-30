@@ -11,7 +11,7 @@ class ProductModel extends Model
     protected $useAutoIncrement = true;
     protected $returnType = 'array';
     protected $useSoftDeletes = false;
-    protected $allowedFields = ['category_id', 'name', 'slug', 'sku', 'description', 'price', 'stock', 'image'];
+    protected $allowedFields = ['category_id', 'name', 'slug', 'sku', 'description', 'price', 'stock', 'image', 'po_price_desc', 'product_status'];
     protected $useTimestamps = true;
     protected $createdField = 'created_at';
     protected $updatedField = 'updated_at';
@@ -26,6 +26,8 @@ class ProductModel extends Model
         'price' => 'required|numeric|greater_than_equal_to[0]',
         'stock' => 'required|integer|greater_than_equal_to[0]',
         'image' => 'permit_empty|max_length[255]',
+        'po_price_desc' => 'permit_empty|numeric|greater_than_equal_to[0]',
+        'product_status' => 'required|in_list[ACTIVE,DEACTIVE]',
     ];
 
     protected $validationMessages = [
@@ -172,5 +174,18 @@ class ProductModel extends Model
         $result = $builder->countAllResults();
         log_message('debug', 'countFiltered: Found ' . $result . ' filtered products');
         return $result;
+    }
+
+    /**
+     * Increment product view count
+     */
+    public function incrementViews($productId)
+    {
+        $builder = $this->builder();
+        $builder->set('views', 'views + 1', false);
+        $builder->where('id', $productId);
+        $builder->update();
+        
+        return true;
     }
 }

@@ -25,6 +25,7 @@ class Home extends BaseController
         $data['featured_products'] = $this->productModel->select('products.*, categories.name as category_name')
             ->join('categories', 'categories.id = products.category_id', 'left')
             ->where('products.stock >', 0)
+            ->where('products.product_status', 'ACTIVE')
             ->orderBy('products.created_at', 'DESC')
             ->findAll(8);
         
@@ -42,6 +43,7 @@ class Home extends BaseController
         $data['new_arrivals'] = $this->productModel->select('products.*, categories.name as category_name')
             ->join('categories', 'categories.id = products.category_id', 'left')
             ->where('products.stock >', 0)
+            ->where('products.product_status', 'ACTIVE')
             ->orderBy('products.created_at', 'DESC')
             ->findAll(4);
         
@@ -49,6 +51,7 @@ class Home extends BaseController
         $data['sale_products'] = $this->productModel->select('products.*, categories.name as category_name')
             ->join('categories', 'categories.id = products.category_id', 'left')
             ->where('products.stock >', 0)
+            ->where('products.product_status', 'ACTIVE')
             ->where('products.price <', 100) // Adjust this condition as needed
             ->orderBy('RAND()')
             ->findAll(4);
@@ -129,7 +132,8 @@ class Home extends BaseController
                   ->orLike('products.description', $keyword)
                   ->orLike('categories.name', $keyword)
                ->groupEnd()
-               ->where('products.stock >', 0);
+               ->where('products.stock >', 0)
+               ->where('products.product_status', 'ACTIVE');
         
         $totalProducts = $builder->countAllResults(false);
         $products = $builder->get($this->perPage, ($page - 1) * $this->perPage)->getResultArray();

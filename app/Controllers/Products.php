@@ -54,7 +54,7 @@ class Products extends BaseController
         $page = (int)($this->request->getGet('page') ?? 1);
         
         // Build conditions
-        $conditions = ['products.stock >' => 0];
+        $conditions = ['products.stock >' => 0, 'products.product_status' => 'ACTIVE'];
         
         if ($category) {
             $conditions['products.category_id'] = $category;
@@ -99,6 +99,7 @@ class Products extends BaseController
         // Get featured products for sidebar
         $featuredProducts = $this->productModel->where('is_featured', 1)
             ->where('stock >', 0)
+            ->where('product_status', 'ACTIVE')
             ->orderBy('RAND()')
             ->findAll(3);
         
@@ -130,6 +131,7 @@ class Products extends BaseController
         $product = $this->productModel->select('products.*, categories.name as category_name, categories.slug as category_slug')
             ->join('categories', 'categories.id = products.category_id', 'left')
             ->where('products.slug', $slug)
+            ->where('products.product_status', 'ACTIVE')
             ->first();
             
         if (!$product) {
@@ -143,6 +145,7 @@ class Products extends BaseController
         $relatedProducts = $this->productModel->where('category_id', $product['category_id'])
             ->where('id !=', $product['id'])
             ->where('stock >', 0)
+            ->where('product_status', 'ACTIVE')
             ->orderBy('RAND()')
             ->findAll(4);
             
@@ -152,7 +155,7 @@ class Products extends BaseController
             'relatedProducts' => $relatedProducts
         ];
         
-        return $this->render('products/detail', $data);
+        return view('products/detail', $data);
     }
     
     /**
@@ -172,6 +175,7 @@ class Products extends BaseController
             ->orLike('products.description', $search)
             ->orLike('categories.name', $search)
             ->where('products.stock >', 0)
+            ->where('products.product_status', 'ACTIVE')
             ->orderBy('products.name', 'ASC')
             ->findAll();
             

@@ -122,8 +122,8 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="<?= site_url('about') ?>" class="nav-link <?= uri_string() === 'about' ? 'active' : '' ?>">
-                            <i class="fas fa-info-circle"></i> About
+                        <a href="<?= site_url('orders') ?>" class="nav-link <?= uri_string() === 'orders' ? 'active' : '' ?>">
+                            <i class="fas fa-box-open"></i> My Order
                         </a>
                     </li>
                     <li class="nav-item">
@@ -152,71 +152,31 @@
                 <li class="nav-item dropdown">
                     <a href="#" class="nav-link" data-toggle="dropdown">
                         <i class="fas fa-user-circle"></i>
+                        <span class="ml-1"><?= session()->get('first_name') ?? session()->get('name') ?? session()->get('user_name') ?? 'User' ?></span>
                     </a>
                     <div class="dropdown-menu dropdown-menu-right">
-                        <a href="<?= site_url('account') ?>" class="dropdown-item">
-                            <i class="fas fa-user mr-2"></i> My Account
+                        <a href="<?= site_url('user/profile') ?>" class="dropdown-item">
+                            <i class="fas fa-user mr-2"></i> Profile
                         </a>
-                        <a href="<?= site_url('orders') ?>" class="dropdown-item">
-                            <i class="fas fa-box-open mr-2"></i> My Orders
-                        </a>
-                        <a href="<?= site_url('wishlist') ?>" class="dropdown-item">
-                            <i class="fas fa-heart mr-2"></i> Wishlist
-                        </a>
-                        <div class="dropdown-divider"></div>
-                        <a href="<?= site_url('contact') ?>" class="dropdown-item">
-                            <i class="fas fa-headset mr-2"></i> Contact Us
+                        <a href="<?= site_url('logout') ?>" class="dropdown-item">
+                            <i class="fas fa-sign-out-alt mr-2"></i> Logout
                         </a>
                     </div>
                 </li>
                 
-                <!-- Cart Dropdown Menu -->
+                <!-- Cart Link -->
                 <?php 
                 $cart = service('cart');
                 $cartItems = $cart->contents();
                 $totalItems = $cart->totalItems();
                 ?>
-                <li class="nav-item dropdown">
-                    <a class="nav-link" data-toggle="dropdown" href="#">
+                <li class="nav-item">
+                    <a href="<?= site_url('cart') ?>" class="nav-link">
                         <i class="fas fa-shopping-cart"></i>
                         <span class="badge badge-danger navbar-badge cart-count <?= ($totalItems > 0) ? '' : 'd-none' ?>">
                             <?= $totalItems ?>
                         </span>
                     </a>
-                    <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
-                        <span class="dropdown-item dropdown-header">
-                            <?= $totalItems ?> Item(s) in Cart
-                        </span>
-                        <div class="dropdown-divider"></div>
-                        <?php if ($totalItems > 0): ?>
-                            <?php foreach (service('cart')->contents() as $item): ?>
-                                <a href="#" class="dropdown-item">
-                                    <div class="media">
-                                        <img src="<?= !empty($item['options']['image'] ?? '') ? base_url('uploads/products/' . $item['options']['image']) : 'https://via.placeholder.com/50' ?>" alt="Product Image" class="img-size-50 mr-3 img-circle">
-                                        <div class="media-body">
-                                            <h3 class="dropdown-item-title">
-                                                <?= esc($item['name'] ?? 'Unknown Product') ?>
-                                                <?php if (isset($item['qty'])): ?>
-                                                    <span class="float-right text-sm text-muted"><i class="fas fa-times"></i> <?= $item['qty'] ?></span>
-                                                <?php endif; ?>
-                                            </h3>
-                                            <?php if (isset($item['price'], $item['qty'])): ?>
-                                                <p class="text-sm">$<?= number_format($item['price'] * $item['qty'], 2) ?></p>
-                                            <?php endif; ?>
-                                        </div>
-                                    </div>
-                                </a>
-                                <div class="dropdown-divider"></div>
-                            <?php endforeach; ?>
-                            <a href="<?= site_url('cart') ?>" class="dropdown-item dropdown-footer">View Cart</a>
-                            <a href="<?= site_url('checkout') ?>" class="dropdown-item dropdown-footer">Checkout</a>
-                        <?php else: ?>
-                            <div class="dropdown-item text-center">
-                                <p class="text-muted mb-2">Your cart is empty</p>
-                                <a href="<?= site_url('products') ?>" class="btn btn-primary btn-sm">Continue Shopping</a>
-                            </div>
-                        <?php endif; ?>
-                    </div>
                 </li>
             </ul>
         </div>
@@ -253,58 +213,10 @@
     <footer class="footer">
         <div class="container">
             <div class="row">
-                <div class="col-md-4 mb-4 mb-md-0">
-                    <h5>About <?= getenv('site_name') ?></h5>
-                    <p class="text-muted">Your one-stop shop for quality products at affordable prices. We're committed to providing the best shopping experience.</p>
-                </div>
-                <div class="col-md-2 mb-4 mb-md-0">
-                    <h5>Quick Links</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="<?= site_url() ?>" class="text-white">Home</a></li>
-                        <li><a href="<?= site_url('products') ?>" class="text-white">Products</a></li>
-                        <li><a href="<?= site_url('categories') ?>" class="text-white">Categories</a></li>
-                        <li><a href="<?= site_url('about') ?>" class="text-white">About Us</a></li>
-                        <li><a href="<?= site_url('contact') ?>" class="text-white">Contact</a></li>
-                    </ul>
-                </div>
-                <div class="col-md-3 mb-4 mb-md-0">
-                    <h5>Customer Service</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="<?= site_url('faq') ?>" class="text-white">FAQs</a></li>
-                        <li><a href="<?= site_url('shipping') ?>" class="text-white">Shipping Policy</a></li>
-                        <li><a href="<?= site_url('returns') ?>" class="text-white">Return Policy</a></li>
-                        <li><a href="<?= site_url('privacy') ?>" class="text-white">Privacy Policy</a></li>
-                        <li><a href="<?= site_url('terms') ?>" class="text-white">Terms & Conditions</a></li>
-                    </ul>
-                </div>
-                <div class="col-md-3">
-                    <h5>Contact Us</h5>
-                    <address class="text-white">
-                        <p class="mb-1"><i class="fas fa-map-marker-alt me-2"></i> 123 Main Street, City, Country</p>
-                        <p class="mb-1"><i class="fas fa-phone me-2"></i> +1 234 567 890</p>
-                        <p class="mb-1"><i class="fas fa-envelope me-2"></i> info@example.com</p>
-                    </address>
-                    <div class="social-links mt-3">
-                        <a href="#" class="text-white me-2"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#" class="text-white me-2"><i class="fab fa-twitter"></i></a>
-                        <a href="#" class="text-white me-2"><i class="fab fa-instagram"></i></a>
-                        <a href="#" class="text-white me-2"><i class="fab fa-linkedin-in"></i></a>
-                    </div>
-                </div>
-            </div>
-            <hr class="bg-light">
-            <div class="row">
-                <div class="col-md-6 text-center text-md-start">
-                    <p class="mb-0">&copy; <?= date('Y') ?> <?= getenv('site_name') ?>. All rights reserved.</p>
-                </div>
-                <div class="col-md-6 text-center text-md-end">
-                    <p class="mb-0">
-                        <span class="me-2">Secure Payment:</span>
-                        <i class="fab fa-cc-visa fa-lg me-2"></i>
-                        <i class="fab fa-cc-mastercard fa-lg me-2"></i>
-                        <i class="fab fa-cc-paypal fa-lg me-2"></i>
-                        <i class="fab fa-cc-apple-pay fa-lg"></i>
-                    </p>
+                <div class="col-12 text-center">
+                    <h5><?= getenv('site_name', 'Tori Shop') ?></h5>
+                    <p class="text-muted mb-3">Quality products at affordable prices.</p>
+                    <p class="mb-0 text-muted">&copy; <?= date('Y') ?> <?= getenv('site_name', 'Tori Shop') ?>. All rights reserved.</p>
                 </div>
             </div>
         </div>

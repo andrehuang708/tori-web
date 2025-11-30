@@ -19,18 +19,24 @@
                         <div class="row mb-3">
                             <div class="col-md-6 mb-3">
                                 <label for="customer_name" class="form-label">Nama Lengkap <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="customer_name" name="customer_name" required>
+                                <input type="text" class="form-control" id="customer_name" name="customer_name" value="<?= esc($user_data['name'] ?? '') ?>" required>
                                 <div class="invalid-feedback">
                                     Harap isi nama lengkap
                                 </div>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="customer_phone" class="form-label">Nomor Telepon <span class="text-danger">*</span></label>
-                                <input type="tel" class="form-control" id="customer_phone" name="customer_phone" required>
+                                <input type="tel" class="form-control" id="customer_phone" name="customer_phone" value="<?= esc($user_data['phone'] ?? '') ?>" required>
                                 <div class="invalid-feedback">
                                     Harap isi nomor telepon
                                 </div>
                             </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="customer_email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="customer_email" name="customer_email" value="<?= esc($user_data['email'] ?? '') ?>" readonly>
+                            <small class="text-muted">Email tidak dapat diubah</small>
                         </div>
                         
                         <div class="mb-4">

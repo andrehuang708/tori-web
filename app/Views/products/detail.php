@@ -1,5 +1,13 @@
 <?= $this->extend('layouts/main') ?>
 
+<?= $this->section('styles') ?>
+<style>
+.bg-gradient-purple {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+</style>
+<?= $this->endSection() ?>
+
 <?= $this->section('content') ?>
 <div class="container py-5">
     <!-- Breadcrumb -->
@@ -24,10 +32,20 @@
             <div class="card mb-4">
                 <div class="card-body p-0">
                     <div class="product-image-container">
-                        <img id="main-product-image" 
-                             src="<?= !empty($product['image']) ? base_url('uploads/products/' . $product['image']) : 'https://via.placeholder.com/600' ?>" 
-                             class="img-fluid w-100" 
-                             alt="<?= esc($product['name']) ?>">
+                        <?php if (!empty($product['image'])): ?>
+                            <img id="main-product-image" 
+                                 src="<?= base_url('uploads/products/' . $product['image']) ?>" 
+                                 class="img-fluid w-100" 
+                                 alt="<?= esc($product['name']) ?>"
+                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <div style="display: none; width: 100%; height: 400px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); display: flex; align-items: center; justify-content: center; color: #6c757d;">
+                                <i class="fas fa-image" style="font-size: 4rem; opacity: 0.5;"></i>
+                            </div>
+                        <?php else: ?>
+                            <div style="width: 100%; height: 400px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); display: flex; align-items: center; justify-content: center; color: #6c757d;">
+                                <i class="fas fa-image" style="font-size: 4rem; opacity: 0.5;"></i>
+                            </div>
+                        <?php endif; ?>
                     </div>
                     <?php if (!empty($product_images)): ?>
                         <div class="product-thumbnails d-flex flex-wrap gap-2 p-3">
@@ -37,7 +55,11 @@
                                      data-image="<?= base_url('uploads/products/' . $image) ?>">
                                     <img src="<?= base_url('uploads/products/' . $image) ?>" 
                                          class="img-fluid h-100 w-100 object-fit-cover" 
-                                         alt="<?= esc($product['name']) ?> - Thumbnail <?= $key + 1 ?>">
+                                         alt="<?= esc($product['name']) ?> - Thumbnail <?= $key + 1 ?>"
+                                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                    <div style="display: none; width: 100%; height: 100%; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); display: flex; align-items: center; justify-content: center; color: #6c757d;">
+                                        <i class="fas fa-image" style="font-size: 1rem; opacity: 0.5;"></i>
+                                    </div>
                                 </div>
                             <?php endforeach; ?>
                         </div>
@@ -77,7 +99,7 @@
                         </span>
                     <?php endif; ?>
                     
-                    <?php if ($product['discount_percent'] > 0): ?>
+                    <?php if (!empty($product['discount_percent']) && $product['discount_percent'] > 0): ?>
                         <span class="badge bg-danger me-2 mb-2">
                             -<?= $product['discount_percent'] ?>% OFF
                         </span>
@@ -85,24 +107,33 @@
                     
                     <h1 class="h3 mb-2"><?= esc($product['name']) ?></h1>
                     
-                    <!-- Rating -->
+                    <!-- Items Sold -->
                     <div class="d-flex align-items-center mb-3">
-                        <div class="text-warning me-2">
-                            <?= str_repeat('★', 5) ?>
+                        <div class="text-success me-2">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span class="fw-bold"><?= number_format($product['sold_count'] ?? 0) ?> </span>
                         </div>
-                        <a href="#product-description" class="text-muted small">(Be the first to review)</a>
+                        <span class="text-muted small">&nbsp;items sold</span>
                     </div>
                     
                     <!-- Price -->
                     <div class="mb-4">
-                        <?php if ($product['discount_percent'] > 0): ?>
-                            <div class="d-flex align-items-center">
-                                <h2 class="text-danger mb-0">$<?= number_format($product['price'] * (1 - $product['discount_percent'] / 100), 2) ?></h2>
-                                <h4 class="text-muted text-decoration-line-through ms-3 mb-0">$<?= number_format($product['price'], 2) ?></h4>
+                        <?php if (!empty($product['discount_percent']) && $product['discount_percent'] > 0): ?>
+                            <div class="d-flex align-items-center mb-2">
+                                <h2 class="text-danger mb-0">Rp <?= number_format($product['price'] * (1 - $product['discount_percent'] / 100), 0, ',', '.') ?></h2>
+                                <h4 class="text-muted text-decoration-line-through ms-3 mb-0">Rp <?= number_format($product['price'], 0, ',', '.') ?></h4>
                                 <span class="badge bg-danger ms-2">Save <?= $product['discount_percent'] ?>%</span>
                             </div>
                         <?php else: ?>
-                            <h2 class="text-primary">$<?= number_format($product['price'], 2) ?></h2>
+                            <h2 class="text-primary mb-2">DP : Rp <?= number_format($product['price'], 0, ',', '.') ?></h2>
+                        <?php endif; ?>
+                        
+                        <?php if (!empty($product['po_price_desc']) && $product['po_price_desc'] > 0): ?>
+                            <div class="d-flex align-items-center">
+                                <span class="badge bg-gradient-purple text-white px-3 py-2">
+                                    <i class="fas fa-tag me-1"></i> PO Price: Rp <?= number_format($product['po_price_desc'], 0, ',', '.') ?>
+                                </span>
+                            </div>
                         <?php endif; ?>
                     </div>
                     
@@ -227,15 +258,26 @@
                             <div class="card h-100 product-card">
                                 <div class="position-relative">
                                     <a href="<?= site_url('products/' . $related['slug']) ?>">
-                                        <img src="<?= !empty($related['image']) ? base_url('uploads/products/' . $related['image']) : 'https://via.placeholder.com/300' ?>" 
-                                             class="card-img-top product-image" alt="<?= esc($related['name']) ?>">
+                                        <?php if (!empty($related['image'])): ?>
+                                            <img src="<?= base_url('uploads/products/' . $related['image']) ?>" 
+                                                 class="card-img-top product-image" alt="<?= esc($related['name']) ?>"
+                                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                                                 style="height: 200px; object-fit: cover;">
+                                            <div style="display: none; width: 100%; height: 200px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); display: flex; align-items: center; justify-content: center; color: #6c757d;">
+                                                <i class="fas fa-image" style="font-size: 2rem; opacity: 0.5;"></i>
+                                            </div>
+                                        <?php else: ?>
+                                            <div style="width: 100%; height: 200px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); display: flex; align-items: center; justify-content: center; color: #6c757d;">
+                                                <i class="fas fa-image" style="font-size: 2rem; opacity: 0.5;"></i>
+                                            </div>
+                                        <?php endif; ?>
                                     </a>
                                     <?php if ($related['is_featured']): ?>
                                         <span class="position-absolute top-0 start-0 bg-warning text-dark px-2 py-1 m-2 rounded small">
                                             <i class="fas fa-star me-1"></i> Featured
                                         </span>
                                     <?php endif; ?>
-                                    <?php if ($related['discount_percent'] > 0): ?>
+                                    <?php if (!empty($related['discount_percent']) && $related['discount_percent'] > 0): ?>
                                         <span class="position-absolute top-0 end-0 bg-danger text-white px-2 py-1 m-2 rounded small">
                                             -<?= $related['discount_percent'] ?>%
                                         </span>
@@ -248,18 +290,18 @@
                                         </a>
                                     </h5>
                                     <div class="mt-auto">
-                                        <?php if ($related['discount_percent'] > 0): ?>
+                                        <?php if (!empty($related['discount_percent']) && $related['discount_percent'] > 0): ?>
                                             <div class="d-flex align-items-center">
-                                                <h5 class="mb-0 text-danger">$<?= number_format($related['price'] * (1 - $related['discount_percent'] / 100), 2) ?></h5>
-                                                <small class="text-muted text-decoration-line-through ms-2">$<?= number_format($related['price'], 2) ?></small>
+                                                <h5 class="mb-0 text-danger">Rp <?= number_format($related['price'] * (1 - $related['discount_percent'] / 100), 0, ',', '.') ?></h5>
+                                                <small class="text-muted text-decoration-line-through ms-2">Rp <?= number_format($related['price'], 0, ',', '.') ?></small>
                                             </div>
                                         <?php else: ?>
-                                            <h5 class="mb-0">$<?= number_format($related['price'], 2) ?></h5>
+                                            <h5 class="mb-0">Rp <?= number_format($related['price'], 0, ',', '.') ?></h5>
                                         <?php endif; ?>
                                         <button type="button" class="btn btn-primary btn-sm w-100 mt-2 add-to-cart" 
                                                 data-id="<?= $related['id'] ?>" 
                                                 data-name="<?= esc($related['name']) ?>"
-                                                data-price="<?= $related['discount_percent'] > 0 ? $related['price'] * (1 - $related['discount_percent'] / 100) : $related['price'] ?>">
+                                                data-price="<?= !empty($related['discount_percent']) && $related['discount_percent'] > 0 ? $related['price'] * (1 - $related['discount_percent'] / 100) : $related['price'] ?>">
                                             <i class="fas fa-shopping-cart me-1"></i> Add to Cart
                                         </button>
                                     </div>

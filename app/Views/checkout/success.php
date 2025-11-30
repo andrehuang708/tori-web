@@ -49,7 +49,7 @@ $whatsappLink = "https://wa.me/{$whatsappNumber}?text=" . $orderDetails;
                 <div class="card-body p-5 text-center">
                     <div class="mb-4">
                         <div class="bg-success bg-opacity-10 d-inline-flex p-3 rounded-circle mb-3">
-                            <i class="fas fa-check-circle text-success" style="font-size: 3rem;"></i>
+                            <i class="fas fa-check-circle text-white" style="font-size: 3rem;"></i>
                         </div>
                         <h2 class="fw-bold mb-3">Terima Kasih!</h2>
                         <p class="text-muted mb-4">Pesanan Anda telah berhasil diterima dengan nomor pesanan:</p>

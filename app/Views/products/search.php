@@ -88,8 +88,19 @@
                                 <div class="row g-0">
                                     <div class="col-4">
                                         <a href="<?= site_url('products/' . $product['slug']) ?>">
-                                            <img src="<?= !empty($product['image']) ? base_url('uploads/products/' . $product['image']) : 'https://via.placeholder.com/100' ?>" 
-                                                 class="img-fluid rounded" alt="<?= esc($product['name']) ?>">
+                                            <?php if (!empty($product['image'])): ?>
+                                                <img src="<?= base_url('uploads/products/' . $product['image']) ?>" 
+                                                     class="img-fluid rounded" alt="<?= esc($product['name']) ?>"
+                                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                                                     style="width: 100px; height: 100px; object-fit: cover;">
+                                                <div style="display: none; width: 100px; height: 100px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #6c757d;">
+                                                    <i class="fas fa-image" style="font-size: 1.5rem; opacity: 0.5;"></i>
+                                                </div>
+                                            <?php else: ?>
+                                                <div style="width: 100px; height: 100px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #6c757d;">
+                                                    <i class="fas fa-image" style="font-size: 1.5rem; opacity: 0.5;"></i>
+                                                </div>
+                                            <?php endif; ?>
                                         </a>
                                     </div>
                                     <div class="col-8 ps-3">
@@ -101,7 +112,10 @@
                                         <div class="text-warning mb-1 small">
                                             <?= str_repeat('★', 5) ?>
                                         </div>
-                                        <div class="text-primary fw-bold">$<?= number_format($product['price'], 2) ?></div>
+                                        <div class="text-primary fw-bold">Rp <?= number_format($product['price'], 0, ',', '.') ?></div>
+                                        <?php if (!empty($product['po_price_desc']) && $product['po_price_desc'] > 0): ?>
+                                            <div class="text-muted small">PO: Rp <?= number_format($product['po_price_desc'], 0, ',', '.') ?></div>
+                                        <?php endif; ?>
                                     </div>
                                 </div>
                             </div>
@@ -147,8 +161,19 @@
                                 <!-- Product Image -->
                                 <div class="position-relative">
                                     <a href="<?= site_url('products/' . $product['slug']) ?>">
-                                        <img src="<?= !empty($product['image']) ? base_url('uploads/products/' . $product['image']) : 'https://via.placeholder.com/300' ?>" 
-                                             class="card-img-top product-image" alt="<?= esc($product['name']) ?>">
+                                        <?php if (!empty($product['image'])): ?>
+                                            <img src="<?= base_url('uploads/products/' . $product['image']) ?>" 
+                                                 class="card-img-top product-image" alt="<?= esc($product['name']) ?>"
+                                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                                                 style="height: 200px; object-fit: cover;">
+                                            <div style="display: none; width: 100%; height: 200px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); display: flex; align-items: center; justify-content: center; color: #6c757d;">
+                                                <i class="fas fa-image" style="font-size: 2rem; opacity: 0.5;"></i>
+                                            </div>
+                                        <?php else: ?>
+                                            <div style="width: 100%; height: 200px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); display: flex; align-items: center; justify-content: center; color: #6c757d;">
+                                                <i class="fas fa-image" style="font-size: 2rem; opacity: 0.5;"></i>
+                                            </div>
+                                        <?php endif; ?>
                                     </a>
                                     <?php if ($product['is_featured']): ?>
                                         <span class="position-absolute top-0 start-0 bg-warning text-dark px-2 py-1 m-2 rounded small">
@@ -179,11 +204,15 @@
                                     <div class="mt-auto">
                                         <?php if ($product['discount_percent'] > 0): ?>
                                             <div class="d-flex align-items-center">
-                                                <h5 class="mb-0 text-danger">$<?= number_format($product['price'] * (1 - $product['discount_percent'] / 100), 2) ?></h5>
-                                                <small class="text-muted text-decoration-line-through ms-2">$<?= number_format($product['price'], 2) ?></small>
+                                                <h5 class="mb-0 text-danger">Rp <?= number_format($product['price'] * (1 - $product['discount_percent'] / 100), 0, ',', '.') ?></h5>
+                                                <small class="text-muted text-decoration-line-through ms-2">Rp <?= number_format($product['price'], 0, ',', '.') ?></small>
                                             </div>
                                         <?php else: ?>
-                                            <h5 class="mb-0">$<?= number_format($product['price'], 2) ?></h5>
+                                            <h5 class="mb-0">Rp <?= number_format($product['price'], 0, ',', '.') ?></h5>
+                                        <?php endif; ?>
+                                        
+                                        <?php if (!empty($product['po_price_desc']) && $product['po_price_desc'] > 0): ?>
+                                            <div class="text-muted small mb-2">PO: Rp <?= number_format($product['po_price_desc'], 0, ',', '.') ?></div>
                                         <?php endif; ?>
                                         
                                         <!-- Rating -->

@@ -7,6 +7,34 @@ use CodeIgniter\Router\RouteCollection;
  */
 $routes->get('/', 'Home::index');
 
+// Auth routes
+$routes->get('register', 'Auth::register');
+$routes->post('register', 'Auth::register');
+$routes->get('auth/register', 'Auth::register');
+$routes->post('auth/register', 'Auth::register');
+$routes->get('login', 'Auth::login');
+$routes->post('login', 'Auth::login');
+$routes->get('auth/login', 'Auth::login');
+$routes->post('auth/login', 'Auth::login');
+$routes->get('logout', 'Auth::logout');
+
+// User routes (require authentication)
+$routes->group('user', ['filter' => 'auth'], function($routes) {
+    $routes->get('dashboard', 'User::dashboard');
+    $routes->get('order-history', 'User::orderHistory');
+    $routes->get('order/(:num)', 'User::viewOrder/$1');
+    $routes->get('order/(:num)/upload-payment', 'User::uploadPayment/$1');
+    $routes->post('order/(:num)/upload-payment', 'User::uploadPayment/$1');
+    $routes->get('track-order', 'User::trackOrder');
+    $routes->post('track-order', 'User::trackOrder');
+    $routes->get('profile', 'User::profile');
+    $routes->post('profile/update', 'User::updateProfile');
+});
+
+// Direct user routes (alternative paths)
+$routes->get('orders', 'User::orderHistory', ['filter' => 'auth']);
+$routes->get('orders/(:num)', 'User::viewOrder/$1', ['filter' => 'auth']);
+
 // Products
 $routes->get('products', 'Products::index');
 $routes->get('products/(:segment)', 'Products::detail/$1');
@@ -61,6 +89,9 @@ $routes->get('debug/products', 'Products::debug');
 
 // Order tracking with short URL
 $routes->get('o/(:segment)', 'Cart::trackOrderShort/$1');
+
+// Serve uploaded files
+$routes->get('uploads/payment_proofs/(:segment)', 'User::servePaymentProof/$1');
 
 // Admin routes
 $routes->group('admin', ['namespace' => 'App\Controllers\Admin'], function($routes) {
