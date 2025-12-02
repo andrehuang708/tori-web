@@ -68,7 +68,7 @@
             </div>
             
             <!-- Share Buttons -->
-            <div class="card mb-4">
+            <!-- <div class="card mb-4">
                 <div class="card-body">
                     <h6 class="mb-3">Share this product:</h6>
                     <div class="d-flex gap-2">
@@ -86,7 +86,7 @@
                         </a>
                     </div>
                 </div>
-            </div>
+            </div> -->
         </div>
 
         <!-- Product Info -->
@@ -147,6 +147,8 @@
                     <!-- Add to Cart -->
                     <div class="mb-4">
                         <form id="add-to-cart-form" class="row g-2">
+                            <input type="hidden" name="product_id" value="<?= $product['id'] ?>">
+                            <input type="hidden" name="<?= csrf_token() ?>" value="<?= csrf_hash() ?>">
                             <div class="col-auto">
                                 <div class="input-group" style="width: 120px;">
                                     <button type="button" class="btn btn-outline-secondary" id="decrement-qty">-</button>

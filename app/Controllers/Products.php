@@ -65,8 +65,11 @@ class Products extends BaseController
         }
         
         // Sorting
-        $orderBy = 'products.created_at DESC';
+        $orderBy = 'products.id DESC';
         switch ($sort) {
+            case 'newest':
+                $orderBy = 'products.id DESC';
+                break;
             case 'price_asc':
                 $orderBy = 'products.price ASC';
                 break;

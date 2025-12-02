@@ -1,144 +1,118 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Order Details - <?= esc($order['order_number']) ?> - Tori Toys</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        body {
-            background-color: #f8f9fa;
-        }
-        .page-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 2rem 0;
-        }
-        .order-info-card {
-            border-left: 4px solid #007bff;
-        }
-        .status-badge {
-            font-size: 1rem;
-            padding: 0.5rem 1rem;
-            border-radius: 25px;
-        }
-        .item-card {
-            transition: box-shadow 0.2s;
-            margin-bottom: 1rem;
-        }
-        .item-card:hover {
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        .sidebar {
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        .nav-link {
-            color: #6c757d;
-            border-radius: 8px;
-            margin: 0.25rem 0;
-        }
-        .nav-link:hover, .nav-link.active {
-            background-color: #f8f9fa;
-            color: #007bff;
-        }
-        .nav-link i {
-            width: 20px;
-        }
-        .timeline {
-            position: relative;
-            padding-left: 30px;
-        }
-        .timeline::before {
-            content: '';
-            position: absolute;
-            left: 10px;
-            top: 0;
-            bottom: 0;
-            width: 2px;
-            background: #dee2e6;
-        }
-        .timeline-item {
-            position: relative;
-            margin-bottom: 1.5rem;
-        }
-        .timeline-item::before {
-            content: '';
-            position: absolute;
-            left: -25px;
-            top: 5px;
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: #007bff;
-            border: 2px solid white;
-        }
-    </style>
-</head>
-<body>
-    <!-- Header -->
-    <div class="page-header">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-md-6">
-                    <h1 class="mb-0">Order Details</h1>
-                    <p class="mb-0 opacity-75">Order #<?= esc($order['order_number']) ?></p>
-                </div>
-                <div class="col-md-6 text-md-end">
-                    <a href="<?= site_url('user/order-history') ?>" class="btn btn-outline-light">
-                        <i class="fas fa-arrow-left me-2"></i>Back to Orders
-                    </a>
-                    <button class="btn btn-light ms-2" onclick="window.print()">
-                        <i class="fas fa-print me-2"></i>Print
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
+<?= $this->extend('layouts/main') ?>
 
-    <div class="container mt-4">
+<?= $this->section('styles') ?>
+<style>
+    body {
+        background-color: #f8f9fa;
+    }
+    .page-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem 0;
+        margin: -20px -15px 20px -15px;
+    }
+    .sidebar {
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .nav-link {
+        color: #6c757d;
+        border-radius: 8px;
+        margin: 0.25rem 0;
+    }
+    .nav-link:hover, .nav-link.active {
+        background-color: #f8f9fa;
+        color: #007bff;
+    }
+    .nav-link i {
+        width: 20px;
+    }
+    .status-badge {
+        font-size: 0.8rem;
+        padding: 0.35rem 0.75rem;
+        border-radius: 20px;
+    }
+    .order-info-card {
+        border-left: 4px solid #007bff;
+    }
+    .item-card {
+        transition: box-shadow 0.2s;
+        margin-bottom: 1rem;
+    }
+    .item-card:hover {
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .timeline {
+        position: relative;
+        padding-left: 30px;
+    }
+    .timeline::before {
+        content: '';
+        position: absolute;
+        left: 10px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: #dee2e6;
+    }
+    .timeline-item {
+        position: relative;
+        margin-bottom: 1.5rem;
+    }
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -25px;
+        top: 5px;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #007bff;
+        border: 2px solid white;
+    }
+</style>
+<?= $this->endSection() ?>
+
+<?= $this->section('title') ?>Order Details #<?= esc($order['order_number']) ?> - <?= env('site_name') ?><?= $this->endSection() ?>
+
+<?= $this->section('content') ?>
+<div class="container py-4">
         <div class="row">
-            <!-- Sidebar -->
-            <div class="col-md-3">
-                <div class="sidebar p-3 mb-4">
-                    <h6 class="text-uppercase mb-3">Account</h6>
-                    <nav class="nav flex-column">
-                        <a href="<?= site_url('user/dashboard') ?>" class="nav-link">
-                            <i class="fas fa-tachometer-alt me-2"></i>Dashboard
-                        </a>
-                        <a href="<?= site_url('user/order-history') ?>" class="nav-link active">
-                            <i class="fas fa-shopping-bag me-2"></i>Order History
+        <!-- Sidebar -->
+        <div class="col-md-3">
+            <div class="sidebar">
+                <div class="p-3">
+                    <h6 class="text-muted mb-3">Account Menu</h6>
+                    <nav class="nav nav-pills flex-column">
+                        <a href="<?= site_url('user/order-history') ?>" class="nav-link">
+                            <i class="fas fa-list me-2"></i>Order History
                         </a>
                         <a href="<?= site_url('user/track-order') ?>" class="nav-link">
                             <i class="fas fa-search me-2"></i>Track Order
                         </a>
-                        <hr>
+                        <a href="<?= site_url('user/profile') ?>" class="nav-link">
+                            <i class="fas fa-user me-2"></i>Profile Settings
+                        </a>
                         <a href="<?= site_url('cart') ?>" class="nav-link">
                             <i class="fas fa-shopping-cart me-2"></i>Shopping Cart
                         </a>
                         <a href="<?= site_url('/') ?>" class="nav-link">
                             <i class="fas fa-home me-2"></i>Back to Shop
                         </a>
+                        <a href="<?= site_url('logout') ?>" class="nav-link text-danger">
+                            <i class="fas fa-sign-out-alt me-2"></i>Log Out
+                        </a>
+                        <hr>
                     </nav>
-                </div>
-
-                <!-- Order Status Card -->
-                <div class="card border-primary">
-                    <div class="card-body text-center">
-                        <div class="mb-3">
-                            <i class="fas fa-<?= getStatusIcon($order['status']) ?> fa-3x text-<?= getOrderStatusColor($order['status']) ?>"></i>
-                        </div>
-                        <span class="status-badge badge bg-<?= getOrderStatusColor($order['status']) ?>">
-                            <?= ucfirst($order['status']) ?>
-                        </span>
-                    </div>
                 </div>
             </div>
 
-            <!-- Main Content -->
-            <div class="col-md-9">
+            <!-- Order Status Card -->
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9">
                 <!-- Order Information -->
                 <div class="card order-info-card mb-4">
                     <div class="card-header bg-white">
@@ -386,10 +360,8 @@
             </div>
         </div>
     </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+</div>
+<?= $this->endSection() ?>
 
 <?php
 // Helper functions

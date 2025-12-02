@@ -47,25 +47,8 @@ class Products extends BaseController
         return redirect()->to('/admin/login')->with('error', 'You must be logged in as admin to access this page.');
     }
     
-    if ($this->request->isAJAX()) {
-        $draw = $this->request->getPost('draw');
-        $start = (int)$this->request->getPost('start');
-        $length = (int)$this->request->getPost('length');
-        $search = $this->request->getPost('search')['value'] ?? '';
-        $order = $this->request->getPost('order')[0] ?? ['column' => 0, 'dir' => 'asc'];
-        
-        $products = $this->productModel->getProductsForDatatable($start, $length, $search, $order);
-        
-        return $this->response->setJSON([
-            'draw' => $draw,
-            'recordsTotal' => $this->productModel->countAll(),
-            'recordsFiltered' => $this->productModel->countFiltered($search),
-            'data' => $products
-        ]);
-    }
-    
-    // For regular page load, get products with pagination
-    $products = $this->productModel->getProductsWithCategory([], 25, 0);
+    // For regular page load, get all products
+    $products = $this->productModel->getProductsWithCategory([], 0, 0);
     $totalProducts = $this->productModel->countAllResults();
     
     $data = [

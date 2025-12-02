@@ -1,16 +1,83 @@
 <?= $this->extend('layouts/main') ?>
 
+<?= $this->section('styles') ?>
+<style>
+    body {
+        background-color: #f8f9fa;
+    }
+    .page-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem 0;
+        margin: -20px -15px 20px -15px;
+    }
+    .sidebar {
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .nav-link {
+        color: #6c757d;
+        border-radius: 8px;
+        margin: 0.25rem 0;
+    }
+    .nav-link:hover, .nav-link.active {
+        background-color: #f8f9fa;
+        color: #007bff;
+    }
+    .nav-link i {
+        width: 20px;
+    }
+    .status-badge {
+        font-size: 0.8rem;
+        padding: 0.35rem 0.75rem;
+        border-radius: 20px;
+    }
+</style>
+<?= $this->endSection() ?>
+
 <?= $this->section('title') ?>Lacak Pesanan #<?= $order['order_number'] ?> - <?= env('site_name') ?><?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-10">
+<div class="container py-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3">
+            <div class="sidebar">
+                <div class="p-3">
+                    <h6 class="text-muted mb-3">Account Menu</h6>
+                    <nav class="nav nav-pills flex-column">
+                        <a href="<?= site_url('user/order-history') ?>" class="nav-link">
+                            <i class="fas fa-list me-2"></i>Order History
+                        </a>
+                        <a href="<?= site_url('user/track-order') ?>" class="nav-link">
+                            <i class="fas fa-search me-2"></i>Track Order
+                        </a>
+                        <a href="<?= site_url('user/profile') ?>" class="nav-link">
+                            <i class="fas fa-user me-2"></i>Profile Settings
+                        </a>
+                        <a href="<?= site_url('cart') ?>" class="nav-link">
+                            <i class="fas fa-shopping-cart me-2"></i>Shopping Cart
+                        </a>
+                        <a href="<?= site_url('/') ?>" class="nav-link">
+                            <i class="fas fa-home me-2"></i>Back to Shop
+                        </a>
+                        <a href="<?= site_url('logout') ?>" class="nav-link text-danger">
+                            <i class="fas fa-sign-out-alt me-2"></i>Log Out
+                        </a>
+                        <hr>
+                    </nav>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9">
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-white py-3">
                     <div class="d-flex justify-content-between align-items-center">
                         <h4 class="mb-0">Detail Pesanan #<?= $order['order_number'] ?></h4>
-                        <span class="badge bg-<?= 
+                        <span class="status-badge bg-<?= 
                             $order['status'] === 'completed' ? 'success' : 
                             ($order['status'] === 'processing' || $order['status'] === 'shipped' ? 'primary' : 'warning') 
                         ?>">
@@ -99,7 +166,7 @@
                                 </tr>
                                 <tr>
                                     <td colspan="3" class="text-end fw-bold">Total</td>
-                                    <td class="text-end fw-bold text-primary">Rp <?= number_format($order['total'], 0, ',', '.') ?></td>
+                                    <td class="text-end fw-bold text-primary">Rp <?= number_format($order['subtotal'], 0, ',', '.') ?></td>
                                 </tr>
                             </tfoot>
                         </table>

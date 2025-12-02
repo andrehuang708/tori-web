@@ -11,7 +11,7 @@ class ProductModel extends Model
     protected $useAutoIncrement = true;
     protected $returnType = 'array';
     protected $useSoftDeletes = false;
-    protected $allowedFields = ['category_id', 'name', 'slug', 'sku', 'description', 'price', 'stock', 'image', 'po_price_desc', 'product_status'];
+    protected $allowedFields = ['category_id', 'name', 'slug', 'sku', 'description', 'price', 'stock', 'image', 'po_price_desc', 'product_status', 'is_featured'];
     protected $useTimestamps = true;
     protected $createdField = 'created_at';
     protected $updatedField = 'updated_at';
@@ -146,9 +146,15 @@ class ProductModel extends Model
                    ->groupEnd();
         }
         
-        // Order by
-        $columns = ['products.name', 'products.price', 'products.stock', 'categories.name'];
-        $builder->orderBy($columns[$order['column']], $order['dir']);
+        // Order by - include ID column for sorting
+        $columns = ['products.id', 'products.sku', 'products.name', 'products.price', 'products.stock', 'categories.name', 'products.product_status'];
+        
+        // Default sort by ID descending for latest products first, unless user specifies different sort
+        if (isset($order['column']) && isset($order['dir'])) {
+            $builder->orderBy($columns[$order['column']], $order['dir']);
+        } else {
+            $builder->orderBy('products.id', 'DESC');
+        }
         
         // Limit and offset
         $builder->limit($length, $start);

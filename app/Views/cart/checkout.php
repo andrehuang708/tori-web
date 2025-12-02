@@ -34,9 +34,16 @@
                         </div>
                         
                         <div class="mb-3">
-                            <label for="customer_email" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="customer_email" name="customer_email" value="<?= esc($user_data['email'] ?? '') ?>" readonly>
-                            <small class="text-muted">Email tidak dapat diubah</small>
+                            <label for="customer_email" class="form-label">Email <?php if(session()->get('logged_in')): ?><span class="text-danger">*</span><?php endif; ?></label>
+                            <input type="email" class="form-control" id="customer_email" name="customer_email" 
+                                   value="<?= esc($user_data['email'] ?? '') ?>" 
+                                   <?= session()->get('logged_in') ? 'readonly' : '' ?>
+                                   <?= session()->get('logged_in') ? 'required' : '' ?>>
+                            <?php if(session()->get('logged_in')): ?>
+                                <small class="text-muted">Email tidak dapat diubah (login user)</small>
+                            <?php else: ?>
+                                <small class="text-muted">Masukkan email untuk notifikasi order</small>
+                            <?php endif; ?>
                         </div>
                         
                         <div class="mb-4">

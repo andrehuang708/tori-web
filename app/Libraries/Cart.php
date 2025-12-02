@@ -80,7 +80,8 @@ class Cart
                 'price' => $product['price'],
                 'quantity' => $quantity,
                 'image' => $product['image'] ?? null,
-                'stock' => $product['stock']
+                'stock' => $product['stock'],
+                'category' => $this->getProductCategory($productId)
             ];
         }
         
@@ -165,6 +166,18 @@ class Cart
         $cart['total_price'] = $totalPrice;
         
         $this->session->set($this->cartName, $cart);
+    }
+
+    /**
+     * Get product category name
+     */
+    protected function getProductCategory($productId)
+    {
+        $product = $this->productModel->select('categories.name as category_name')
+            ->join('categories', 'categories.id = products.category_id', 'left')
+            ->find($productId);
+        
+        return $product['category_name'] ?? 'Uncategorized';
     }
 
     /**

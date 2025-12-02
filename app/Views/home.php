@@ -441,6 +441,93 @@
     </div>
 </section>
 
+<!-- Featured Products -->
+<?php if (!empty($featured_products)): ?>
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Featured Products</h2>
+            <a href="<?= site_url('products') ?>" class="btn btn-outline-primary">View All</a>
+        </div>
+        
+        <div class="product-grid">
+            <?php foreach ($featured_products as $product): ?>
+                <div class="product-card">
+                    <!-- Product Image -->
+                    <div class="product-image-container">
+                        <a href="<?= site_url('products/' . $product['slug']) ?>">
+                            <?php if (!empty($product['image'])): ?>
+                                <img src="<?= base_url('uploads/products/' . $product['image']) ?>" 
+                                     class="product-image" alt="<?= esc($product['name']) ?>"
+                                     onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <div class="product-image-placeholder" style="display: none;">
+                                    <i class="fas fa-image"></i>
+                                </div>
+                            <?php else: ?>
+                                <div class="product-image-placeholder">
+                                    <i class="fas fa-image"></i>
+                                </div>
+                            <?php endif; ?>
+                        </a>
+                        <div class="product-badges">
+                            <span class="badge-featured bg-warning text-white">
+                                <i class="fas fa-star"></i> Featured
+                            </span>
+                            <?php if (!empty($product['original_price']) && $product['original_price'] > $product['price']): 
+                                $discountPercent = round((($product['original_price'] - $product['price']) / $product['original_price']) * 100);
+                            ?>
+                                <span class="badge-discount bg-danger text-white">
+                                    -<?= $discountPercent ?>%
+                                </span>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                    
+                    <!-- Product Body - Minimalist -->
+                    <div class="product-body">
+                        <div>
+                            <div class="product-category">
+                                <?= esc($product['category_name']) ?>
+                            </div>
+                            <h5 class="product-title">
+                                <a href="<?= site_url('products/' . $product['slug']) ?>" class="text-dark text-decoration-none">
+                                    <?= esc($product['name']) ?>
+                                </a>
+                            </h5>
+                            
+                            <!-- Price and Button -->
+                            <div class="product-details">
+                                <div class="product-price">
+                                    <?php if (!empty($product['original_price']) && $product['original_price'] > $product['price']): ?>
+                                        <span class="price-current">Rp <?= number_format($product['price'], 0, ',', '.') ?></span>
+                                        <span class="price-original">Rp <?= number_format($product['original_price'], 0, ',', '.') ?></span>
+                                    <?php else: ?>
+                                        <span class="price-current">Rp <?= number_format($product['price'], 0, ',', '.') ?></span>
+                                    <?php endif; ?>
+                                    <?php if (!empty($product['po_price_desc']) && $product['po_price_desc'] > 0): ?>
+                                        <span class="price-po">PO: Rp <?= number_format($product['po_price_desc'], 0, ',', '.') ?></span>
+                                    <?php endif; ?>
+                                </div>
+                                
+                                <!-- Add to Cart Button -->
+                                <div class="product-actions">
+                                    <button type="button" class="btn-add-cart add-to-cart" 
+                                            data-id="<?= $product['id'] ?>" 
+                                            data-name="<?= esc($product['name']) ?>"
+                                            data-price="<?= $product['price'] ?>">
+                                        <i class="fas fa-cart-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</section>
+<?php endif; ?>
+
 <!-- New Arrivals -->
 <?php if (!empty($new_arrivals)): ?>
 <section class="py-5">
@@ -459,7 +546,7 @@
                             <?php if (!empty($product['image'])): ?>
                                 <img src="<?= base_url('uploads/products/' . $product['image']) ?>" 
                                      class="product-image" alt="<?= esc($product['name']) ?>"
-                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                     onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';">
                                 <div class="product-image-placeholder" style="display: none;">
                                     <i class="fas fa-image"></i>
                                 </div>

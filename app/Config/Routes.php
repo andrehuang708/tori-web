@@ -7,6 +7,15 @@ use CodeIgniter\Router\RouteCollection;
  */
 $routes->get('/', 'Home::index');
 
+// Order tracking routes (placed at top for priority)
+$routes->get('o/(:segment)', 'Cart::trackOrderShort/$1');
+$routes->get('track/order/(:num)/(:segment)', 'Cart::trackOrder/$1/$2');
+
+// Test route for debugging
+$routes->get('test-tracking', function() {
+    return 'Tracking routes are working!';
+});
+
 // Auth routes
 $routes->get('register', 'Auth::register');
 $routes->post('register', 'Auth::register');
@@ -79,19 +88,13 @@ $routes->group('cart', function($routes) {
     $routes->get('checkout', 'Cart::checkout');
     $routes->post('process-checkout', 'Cart::processCheckout');
     $routes->get('success/(:num)', 'Cart::success/$1');
-    
-    // Order tracking
-    $routes->get('track/order/(:num)/(:segment)', 'Cart::trackOrder/$1/$2');
 });
-
-// Debug Route - Remove in production
-$routes->get('debug/products', 'Products::debug');
-
-// Order tracking with short URL
-$routes->get('o/(:segment)', 'Cart::trackOrderShort/$1');
 
 // Serve uploaded files
 $routes->get('uploads/payment_proofs/(:segment)', 'User::servePaymentProof/$1');
+
+// Debug Route - Remove in production
+$routes->get('debug/products', 'Products::debug');
 
 // Admin routes
 $routes->group('admin', ['namespace' => 'App\Controllers\Admin'], function($routes) {
@@ -128,6 +131,13 @@ $routes->group('admin', ['namespace' => 'App\Controllers\Admin'], function($rout
         $routes->post('categories/save', 'Categories::save');
         $routes->get('categories/edit/(:num)', 'Categories::edit/$1');
         $routes->get('categories/delete/(:num)', 'Categories::delete/$1');
+        
+        // Customer Management
+        $routes->get('customers', 'Customers::index');
+        $routes->get('customers/detail/(:num)', 'Customers::detail/$1');
+        $routes->get('customers/edit/(:num)', 'Customers::edit/$1');
+        $routes->post('customers/update/(:num)', 'Customers::update/$1');
+        $routes->get('customers/delete/(:num)', 'Customers::delete/$1');
         
         // Order Management
         $routes->get('orders', 'Orders::index');

@@ -26,8 +26,8 @@ foreach ($orderItems as $item) {
 }
 
 $orderDetails .= "%0A*Total:* Rp " . number_format($order['subtotal'], 0, ',', '.') . "%0A%0A";
-$orderDetails .= "*Metode Pembayaran:* " . ucfirst($order['payment_method']) . "%0A";
-$orderDetails .= "*Status:* Menunggu Konfirmasi%0A%0A";
+$orderDetails .= "*Metode Pelunasan:* " . ucfirst($order['payment_method']) . "%0A";
+$orderDetails .= "*Status:* Menunggu Pembayaran Anda %0A%0A";
 
 // Add tracking information
 $orderDetails .= "*Lacak Pesanan:*%0A";

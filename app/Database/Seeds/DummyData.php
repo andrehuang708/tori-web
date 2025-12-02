@@ -41,14 +41,14 @@ class DummyData extends Seeder
 
         // Insert admin user if not exists
         $adminExists = $this->db->table('admins')
-            ->where('email', 'admin@example.com')
+            ->where('email', 'admin@tori-shop.com')
             ->countAllResults() > 0;
 
         if (!$adminExists) {
             $this->db->table('admins')->insert([
-                'name' => 'Admin',
-                'email' => 'admin@example.com',
-                'password' => password_hash('admin123', PASSWORD_DEFAULT),
+                'name' => 'Administrator',
+                'email' => 'admin@tori-shop.com',
+                'password' => password_hash('newSecurePassword123!', PASSWORD_DEFAULT),
                 'role' => 'super_admin',
                 'status' => 'active',
                 'created_at' => date('Y-m-d H:i:s'),

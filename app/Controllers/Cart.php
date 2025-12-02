@@ -13,28 +13,39 @@ class Cart extends BaseController
      */
     public function index()
     {
-        $cartItems = $this->cart->contents();
-        $cartSummary = $this->cart->summary();
-        
-        // Debug logging
-        log_message('debug', 'Cart Items: ' . json_encode($cartItems));
-        log_message('debug', 'Cart Summary: ' . json_encode($cartSummary));
-        
-        // Calculate total manually as fallback
-        $totalPrice = 0;
-        foreach ($cartItems as $item) {
-            $totalPrice += $item['price'] * $item['quantity'];
+        try {
+            $cartItems = $this->cart->contents();
+            $cartSummary = $this->cart->summary();
+            
+            // Calculate total manually as fallback
+            $totalPrice = 0;
+            foreach ($cartItems as $item) {
+                $totalPrice += $item['price'] * $item['quantity'];
+            }
+            
+            $data = [
+                'title' => 'Shopping Cart',
+                'cartItems' => $cartItems,
+                'cartSummary' => $cartSummary,
+                'subtotal' => $totalPrice,
+                'status' => 'pending'
+            ];
+            
+            return view('cart/index', $data);
+        } catch (\Exception $e) {
+            log_message('error', 'Cart index error: ' . $e->getMessage());
+            
+            // Return a simple error view if cart fails
+            $data = [
+                'title' => 'Shopping Cart',
+                'error' => $e->getMessage(),
+                'cartItems' => [],
+                'cartSummary' => ['total_items' => 0, 'total_price' => 0],
+                'subtotal' => 0,
+                'status' => 'pending'
+            ];
+            return view('cart/index', $data);
         }
-        
-        $data = [
-            'title' => 'Shopping Cart',
-            'cartItems' => $cartItems,
-            'cartSummary' => $cartSummary,
-            'subtotal' => $totalPrice,
-            'status' => 'pending'
-        ];
-        
-        return view('cart/index', $data);
     }
 
     /**
@@ -83,7 +94,11 @@ class Cart extends BaseController
         
         // Validate product exists and is in stock
         $product = $this->productModel->find($productId);
-        if (!$product || $product['stock'] < 1) {
+        
+        // Debug: Log the product data
+        log_message('debug', 'Cart add - Product data: ' . json_encode($product));
+        
+        if (!$product || !isset($product['stock']) || $product['stock'] < 1) {
             return $this->jsonResponse([
                 'success' => false,
                 'message' => 'Product not available or out of stock'
@@ -168,17 +183,10 @@ class Cart extends BaseController
      */
     public function checkout()
     {
-        // Check if user is logged in
-        if (!session()->get('logged_in')) {
-            // Store intended URL for redirect after login
-            session()->set('intended_url', 'cart/checkout');
-            return redirect()->to('login')->with('error', 'Please login to proceed with checkout');
-        }
-        
         // Check if cart is empty
         $cartItems = $this->cart->contents();
         if (empty($cartItems)) {
-            return $this->redirectWithMessage('cart', 'Keranjang belanja Anda kosong', 'warning');
+            return redirect()->to('cart')->with('error', 'Your cart is empty');
         }
         
         // Check product stock before checkout
@@ -192,25 +200,35 @@ class Cart extends BaseController
         
         if (!empty($outOfStock)) {
             $this->cart->destroy();
-            return $this->redirectWithMessage('cart', 'Beberapa produk kehabisan stok: ' . implode(', ', $outOfStock), 'danger');
+            return redirect()->to('cart')->with('error', 'Some products are out of stock: ' . implode(', ', $outOfStock));
         }
         
-        // Pre-fill user data from session
-        $firstName = session()->get('first_name') ?? '';
-        $lastName = session()->get('last_name') ?? '';
-        $fullName = trim($firstName . ' ' . $lastName);
-        
+        // Get user data from session if logged in
         $userData = [
-            'name' => $fullName ?: (session()->get('user_name') ?? ''),
-            'email' => session()->get('user_email') ?? '',
-            'phone' => session()->get('user_phone') ?? ''
+            'name' => '',
+            'email' => '',
+            'phone' => ''
         ];
+        
+        // Check if user is logged in and get user data
+        if (session()->get('logged_in')) {
+            $firstName = session()->get('first_name') ?? '';
+            $lastName = session()->get('last_name') ?? '';
+            $fullName = trim($firstName . ' ' . $lastName);
+            
+            $userData = [
+                'name' => $fullName ?: (session()->get('user_name') ?? ''),
+                'email' => session()->get('user_email') ?? '',
+                'phone' => session()->get('user_phone') ?? ''
+            ];
+        }
         
         $data = [
             'cart_items' => $cartItems,
             'cart_summary' => $this->cart->summary(),
             'validation' => \Config\Services::validation(),
-            'user_data' => $userData
+            'user_data' => $userData,
+            'title' => 'Checkout'
         ];
         
         return view('cart/checkout', $data);
@@ -221,17 +239,19 @@ class Cart extends BaseController
      */
     public function processCheckout()
     {
-        // Check if user is logged in
-        if (!session()->get('logged_in')) {
-            return redirect()->to('login')->with('error', 'Please login to proceed with checkout');
-        }
-        
         // Validate form
         $rules = [
             'customer_name' => 'required|min_length[3]|max_length[100]',
             'customer_phone' => 'required|max_length[20]',
             'payment_method' => 'required|in_list[toped,shopee,direct]',
         ];
+        
+        // Add email validation if user is logged in
+        if (session()->get('logged_in')) {
+            $rules['customer_email'] = 'required|valid_email';
+        } else {
+            $rules['customer_email'] = 'permit_empty|valid_email';
+        }
         
         // Add address validation if payment method is direct
         if ($this->request->getPost('payment_method') === 'direct') {
@@ -245,14 +265,14 @@ class Cart extends BaseController
         // Check cart not empty
         $cartItems = $this->cart->contents();
         if (empty($cartItems)) {
-            return $this->redirectWithMessage('cart', 'Keranjang belanja Anda kosong', 'warning');
+            return redirect()->to('cart')->with('error', 'Your cart is empty');
         }
         
         // Verify stock again before processing
         foreach ($cartItems as $item) {
             $product = $this->productModel->find($item['id']);
             if (!$product || $product['stock'] < $item['quantity']) {
-                return $this->redirectWithMessage('cart', 'Maaf, stok untuk ' . $item['name'] . ' tidak mencukupi', 'danger');
+                return redirect()->to('cart')->with('error', 'Sorry, stock for ' . $item['name'] . ' is not sufficient');
             }
         }
         
@@ -407,11 +427,16 @@ class Cart extends BaseController
     public function trackOrder($orderId, $token)
     {
         try {
+            log_message('debug', 'Track order called: Order ID=' . $orderId . ', Token length=' . strlen($token));
+            
             $encrypter = \Config\Services::encrypter();
             $data = json_decode($encrypter->decrypt(hex2bin($token)), true);
             
+            log_message('debug', 'Decrypted data: ' . json_encode($data));
+            
             // Verify token is not expired and matches the order
             if ($data['exp'] < time() || $data['order_id'] != $orderId) {
+                log_message('error', 'Token validation failed: expired or wrong order');
                 throw new \Exception('Invalid or expired tracking link');
             }
             
@@ -419,6 +444,7 @@ class Cart extends BaseController
             $order = $orderModel->find($orderId);
             
             if (!$order || $order['customer_phone'] != $data['phone']) {
+                log_message('error', 'Order not found or phone mismatch');
                 throw new \Exception('Order not found');
             }
             
@@ -431,9 +457,10 @@ class Cart extends BaseController
                 'isGuestView' => true
             ];
             
-            return $this->render('orders/view', $data);
+            return view('orders/view', $data);
             
         } catch (\Exception $e) {
+            log_message('error', 'Track order error: ' . $e->getMessage());
             return $this->redirectWithMessage('/', 'Link tracking tidak valid atau sudah kadaluarsa', 'danger');
         }
     }
@@ -444,36 +471,49 @@ class Cart extends BaseController
     public function trackOrderShort($code)
     {
         try {
+            log_message('debug', 'Track order short called with code: ' . $code);
+            
             // Decode the tracking code
             $data = base64_decode($code);
             
+            log_message('debug', 'Decoded tracking data: ' . $data);
+            
             // Validate the format: track:order_id:hash
             if (!preg_match('/^track:(\d+):([a-f0-9]+)$/', $data, $matches)) {
+                log_message('error', 'Invalid tracking code format: ' . $data);
                 throw new \Exception('Invalid tracking code');
             }
             
             $orderId = $matches[1];
             $hash = $matches[2];
             
+            log_message('debug', 'Parsed order ID: ' . $orderId . ', hash: ' . $hash);
+            
             // Verify the hash
             $orderModel = new OrderModel();
             $order = $orderModel->find($orderId);
             
             if (!$order) {
+                log_message('error', 'Order not found: ' . $orderId);
                 throw new \Exception('Order not found');
             }
             
             $expectedHash = substr(md5($order['customer_phone'] . env('encryption.key')), 0, 10);
             
+            log_message('debug', 'Expected hash: ' . $expectedHash . ', provided hash: ' . $hash);
+            
             if ($hash !== $expectedHash) {
+                log_message('error', 'Hash mismatch');
                 throw new \Exception('Invalid tracking code');
             }
             
             // If valid, redirect to the full tracking URL
             $token = $this->generateOrderToken($orderId, $order['customer_phone']);
+            log_message('debug', 'Generated token, redirecting to full tracking URL');
             return redirect()->to("track/order/{$orderId}/{$token}");
             
         } catch (\Exception $e) {
+            log_message('error', 'Track order short error: ' . $e->getMessage());
             return $this->redirectWithMessage('/', 'Link tracking tidak valid atau sudah kadaluarsa', 'danger');
         }
     }
@@ -502,5 +542,23 @@ class Cart extends BaseController
         $email->setMessage($message);
         
         return $email->send();
+    }
+    
+    /**
+     * JSON Response helper
+     */
+    protected function jsonResponse($data, $statusCode = 200)
+    {
+        return $this->response
+            ->setStatusCode($statusCode)
+            ->setJSON($data);
+    }
+    
+    /**
+     * Redirect with message helper
+     */
+    protected function redirectWithMessage($url, $message, $type = 'success')
+    {
+        return redirect()->to($url)->with('message', $message)->with('message_type', $type);
     }
 }

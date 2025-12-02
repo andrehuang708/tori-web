@@ -799,7 +799,7 @@
                                                 <?php if (!empty($product['image'])): ?>
                                                     <img src="<?= base_url('uploads/products/' . $product['image']) ?>" 
                                                          class="rounded" alt="<?= esc($product['name']) ?>" style="width: 60px; height: 60px; object-fit: cover;"
-                                                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                                         onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';">
                                                     <div style="display: none; width: 60px; height: 60px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #6c757d;">
                                                         <i class="fas fa-image"></i>
                                                     </div>
@@ -866,7 +866,7 @@
                                                 <?php if (!empty($product['image'])): ?>
                                                     <img src="<?= base_url('uploads/products/' . $product['image']) ?>" 
                                                          class="rounded" alt="<?= esc($product['name']) ?>" style="width: 60px; height: 60px; object-fit: cover;"
-                                                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                                         onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';">
                                                     <div style="display: none; width: 60px; height: 60px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #6c757d;">
                                                         <i class="fas fa-image"></i>
                                                     </div>
@@ -922,7 +922,7 @@
                                         <?php if (!empty($product['image'])): ?>
                                             <img src="<?= base_url('uploads/products/' . $product['image']) ?>" 
                                                  class="product-image" alt="<?= esc($product['name']) ?>"
-                                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                                 onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';">
                                             <div class="product-image-placeholder" style="display: none;">
                                                 <i class="fas fa-image"></i>
                                             </div>
@@ -1056,11 +1056,38 @@ document.addEventListener('DOMContentLoaded', function() {
             this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Adding...';
             this.disabled = true;
             
-            // Simulate add to cart (replace with actual AJAX call)
-            setTimeout(() => {
-                this.innerHTML = '<i class="fas fa-check me-2"></i> Added!';
-                this.classList.remove('btn-primary');
-                this.classList.add('btn-success');
+            // Actual AJAX call to add to cart
+            fetch('<?= site_url('cart/add') ?>', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: new URLSearchParams({
+                    'product_id': productId,
+                    'quantity': 1
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Cart response:', data);
+                
+                if (data.success) {
+                    this.innerHTML = '<i class="fas fa-check me-2"></i> Added!';
+                    this.classList.remove('btn-primary');
+                    this.classList.add('btn-success');
+                    
+                    // Update cart count
+                    updateCartCount(data.cart_summary?.total_items || 1);
+                    
+                    // Show success message
+                    showNotification('Product added to cart!', 'success');
+                } else {
+                    // Show error message
+                    showNotification(data.message || 'Failed to add to cart', 'error');
+                    this.innerHTML = originalText;
+                    this.disabled = false;
+                }
                 
                 // Reset button after 2 seconds
                 setTimeout(() => {
@@ -1069,23 +1096,71 @@ document.addEventListener('DOMContentLoaded', function() {
                     this.classList.add('btn-primary');
                     this.disabled = false;
                 }, 2000);
-                
-                // Update cart count (replace with actual cart update)
-                updateCartCount();
-            }, 500);
+            })
+            .catch(error => {
+                console.error('Add to cart error:', error);
+                showNotification('Error adding to cart', 'error');
+                this.innerHTML = originalText;
+                this.disabled = false;
+            });
         });
     });
     
     // Update cart count function
-    function updateCartCount() {
-        // This would typically make an AJAX call to get the current cart count
-        const cartCountElements = document.querySelectorAll('.cart-count');
-        cartCountElements.forEach(element => {
-            const currentCount = parseInt(element.textContent) || 0;
-            element.textContent = currentCount + 1;
-            element.classList.remove('d-none');
-        });
+    function updateCartCount(count = null) {
+        // If count is provided, use it, otherwise make AJAX call
+        if (count !== null) {
+            const cartCountElements = document.querySelectorAll('.cart-count');
+            cartCountElements.forEach(element => {
+                element.textContent = count;
+                if (count > 0) {
+                    element.classList.remove('d-none');
+                }
+            });
+        } else {
+            // Make AJAX call to get current cart count
+            fetch('<?= site_url('cart/count') ?>')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const cartCountElements = document.querySelectorAll('.cart-count');
+                        cartCountElements.forEach(element => {
+                            element.textContent = data.count;
+                            if (data.count > 0) {
+                                element.classList.remove('d-none');
+                            }
+                        });
+                    }
+                })
+                .catch(error => console.error('Cart count error:', error));
+        }
     }
+    
+    // Show notification function
+    function showNotification(message, type = 'info') {
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = `alert alert-${type === 'error' ? 'danger' : type} alert-dismissible fade show position-fixed`;
+        notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+        notification.innerHTML = `
+            ${message}
+            <button type="button" class="close" data-dismiss="alert">
+                <span>&times;</span>
+            </button>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Auto remove after 5 seconds
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 5000);
+    }
+    
+    // Initialize cart count on page load
+    updateCartCount();
     
     // Search input enhancement
     const searchInput = document.querySelector('.search-input-group input');

@@ -32,31 +32,35 @@ $this->section('content');
     <div class="row">
         <!-- Total Orders -->
         <div class="col-12 col-sm-6 col-md-3">
-            <div class="info-box">
-                <span class="info-box-icon bg-info elevation-1"><i class="fas fa-shopping-cart"></i></span>
-                <div class="info-box-content">
-                    <span class="info-box-text">Total Orders</span>
-                    <span class="info-box-number">
-                        <?= number_format($total_orders) ?>
-                        <small>orders</small>
-                    </span>
+            <a href="<?= site_url('admin/orders') ?>" class="text-decoration-none">
+                <div class="info-box hover-elevation-2" style="cursor: pointer; transition: all 0.3s ease;">
+                    <span class="info-box-icon bg-info elevation-1"><i class="fas fa-shopping-cart"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Total Orders</span>
+                        <span class="info-box-number">
+                            <?= number_format($total_orders) ?>
+                            <small>orders</small>
+                        </span>
+                    </div>
+                    <!-- /.info-box-content -->
                 </div>
-                <!-- /.info-box-content -->
-            </div>
+            </a>
             <!-- /.info-box -->
         </div>
         <!-- /.col -->
         
         <!-- Total Products -->
         <div class="col-12 col-sm-6 col-md-3">
-            <div class="info-box mb-3">
-                <span class="info-box-icon bg-success elevation-1"><i class="fas fa-box"></i></span>
-                <div class="info-box-content">
-                    <span class="info-box-text">Total Products</span>
-                    <span class="info-box-number"><?= number_format($total_products) ?></span>
+            <a href="<?= site_url('admin/products') ?>" class="text-decoration-none">
+                <div class="info-box mb-3 hover-elevation-2" style="cursor: pointer; transition: all 0.3s ease;">
+                    <span class="info-box-icon bg-success elevation-1"><i class="fas fa-box"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Total Products</span>
+                        <span class="info-box-number"><?= number_format($total_products) ?></span>
+                    </div>
+                    <!-- /.info-box-content -->
                 </div>
-                <!-- /.info-box-content -->
-            </div>
+            </a>
             <!-- /.info-box -->
         </div>
         <!-- /.col -->
