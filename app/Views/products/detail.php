@@ -38,9 +38,7 @@
                                  class="img-fluid w-100" 
                                  alt="<?= esc($product['name']) ?>"
                                  onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                            <div style="display: none; width: 100%; height: 400px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); display: flex; align-items: center; justify-content: center; color: #6c757d;">
-                                <i class="fas fa-image" style="font-size: 4rem; opacity: 0.5;"></i>
-                            </div>
+    
                         <?php else: ?>
                             <div style="width: 100%; height: 400px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); display: flex; align-items: center; justify-content: center; color: #6c757d;">
                                 <i class="fas fa-image" style="font-size: 4rem; opacity: 0.5;"></i>
@@ -265,9 +263,7 @@
                                                  class="card-img-top product-image" alt="<?= esc($related['name']) ?>"
                                                  onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
                                                  style="height: 200px; object-fit: cover;">
-                                            <div style="display: none; width: 100%; height: 200px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); display: flex; align-items: center; justify-content: center; color: #6c757d;">
-                                                <i class="fas fa-image" style="font-size: 2rem; opacity: 0.5;"></i>
-                                            </div>
+                        
                                         <?php else: ?>
                                             <div style="width: 100%; height: 200px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); display: flex; align-items: center; justify-content: center; color: #6c757d;">
                                                 <i class="fas fa-image" style="font-size: 2rem; opacity: 0.5;"></i>

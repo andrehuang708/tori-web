@@ -236,9 +236,9 @@
 
 <script>
 $(function () {
-    // Auto-hide alerts after 5 seconds
+    // Auto-hide alerts after 5 seconds (except permanent ones)
     setTimeout(function() {
-        $('.alert').fadeOut('slow', function() {
+        $('.alert:not(.alert-permanent)').fadeOut('slow', function() {
             $(this).remove();
         });
     }, 5000);

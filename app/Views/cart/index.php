@@ -13,10 +13,8 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <h3 class="card-title mb-0">Shopping Cart</h3>
-                        <a href="<?= site_url('products') ?>" class="btn btn-sm btn-primary">
-                            <i class="fas fa-arrow-left mr-1"></i> Continue Shopping
-                        </a>
+                        <h3 class="card-title mb-0">Keranjang Belanja</h3>
+                        
                     </div>
                     <div class="card-body">
                         <?php if (isset($error)): ?>
@@ -31,7 +29,7 @@
                                 <h4>Your cart is empty</h4>
                                 <p class="text-muted">You have no items in your shopping cart.</p>
                                 <a href="<?= site_url('products') ?>" class="btn btn-primary">
-                                    <i class="fas fa-shopping-bag mr-1"></i> Start Shopping
+                                    <i class="fas fa-shopping-bag mr-1"></i> Mulai Berbelanja
                                 </a>
                             </div>
                         <?php else: ?>
@@ -40,8 +38,8 @@
                                     <thead>
                                         <tr>
                                             <th>Product</th>
-                                            <th>Price</th>
-                                            <th>Quantity</th>
+                                            <th>Harga (DP)</th>
+                                            <th>Jumlah</th>
                                             <th>Total</th>
                                             <th>Actions</th>
                                         </tr>
@@ -84,13 +82,13 @@
                             <div class="row mt-4">
                                 <div class="col-md-6">
                                     <a href="<?= site_url('products') ?>" class="btn btn-outline-secondary">
-                                        <i class="fas fa-arrow-left mr-1"></i> Continue Shopping
+                                        <i class="fas fa-arrow-left mr-1"></i> Lanjut Berbelanja
                                     </a>
                                 </div>
                                 <div class="col-md-6 text-right">
                                     <h5>Subtotal: Rp <?= number_format($subtotal, 0, ',', '.') ?></h5>
                                     <a href="<?= site_url('cart/checkout') ?>" class="btn btn-success">
-                                        <i class="fas fa-credit-card mr-1"></i> Proceed to Checkout
+                                        <i class="fas fa-credit-card mr-1"></i> Proses Pembayaran
                                     </a>
                                 </div>
                             </div>

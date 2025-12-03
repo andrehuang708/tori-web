@@ -183,6 +183,12 @@ class Cart extends BaseController
      */
     public function checkout()
     {
+        // Ensure user is logged in
+        if (!session()->get('logged_in')) {
+            session()->set('intended_url', current_url());
+            return redirect()->to('login')->with('error', 'Please login to proceed with checkout');
+        }
+        
         // Check if cart is empty
         $cartItems = $this->cart->contents();
         if (empty($cartItems)) {

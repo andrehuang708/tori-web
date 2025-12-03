@@ -8,6 +8,69 @@ body.sb-sidenav-toggled #layoutSidenav #layoutSidenav_content {
     display: flex;
 }
 
+/* Collapsible Sidebar */
+@media (max-width: 767.98px) {
+    .main-sidebar {
+        position: fixed;
+        z-index: 1038;
+        width: 250px;
+        height: 100vh;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease-in-out;
+    }
+    
+    .main-sidebar.sidebar-collapsed {
+        transform: translateX(0);
+    }
+    
+    .content-wrapper {
+        margin-left: 0 !important;
+    }
+    
+    .main-sidebar.sidebar-collapsed + .content-wrapper {
+        margin-left: 0;
+    }
+    
+    /* Push content when sidebar is open */
+    body.sidebar-open .content-wrapper {
+        transform: translateX(250px);
+    }
+    
+    /* Overlay when sidebar is open */
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1037;
+        opacity: 0;
+        transition: opacity 0.3s ease-in-out;
+    }
+    
+    body.sidebar-open .sidebar-overlay {
+        display: block;
+        opacity: 1;
+    }
+    
+    /* Adjust main content padding on mobile */
+    .content-wrapper {
+        padding: 1rem;
+    }
+    
+    /* Hide toggle button on desktop */
+    #mobileSidebarToggle {
+        display: none;
+    }
+    
+    /* Show toggle button only on mobile */
+    @media (max-width: 767.98px) {
+        #mobileSidebarToggle {
+            display: inline-block;
+        }
+    }
+}
+
 #layoutSidenav_nav {
     flex-basis: 225px;
     flex-shrink: 0;

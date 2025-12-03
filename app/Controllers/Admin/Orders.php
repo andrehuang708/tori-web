@@ -55,8 +55,17 @@ class Orders extends BaseController
             return redirect()->to('/admin/orders')->with('error', 'Order not found');
         }
         
+        // Get payment history for this order
+        $db = \Config\Database::connect();
+        $paymentHistory = $db->table('payment_history')
+                            ->where('order_id', $id)
+                            ->orderBy('created_at', 'DESC')
+                            ->get()
+                            ->getResultArray();
+        
         $data = [
-            'order' => $order
+            'order' => $order,
+            'paymentHistory' => $paymentHistory
         ];
         
         return view('admin/orders/view', $data);
@@ -475,5 +484,202 @@ class Orders extends BaseController
         
         fclose($output);
         exit();
+    }
+    
+    /**
+     * Upload payment proof
+     */
+    public function uploadPayment($id = null)
+    {
+        log_message('debug', 'Upload payment method called with ID: ' . $id);
+        log_message('debug', 'Request method: ' . $this->request->getMethod());
+        
+        // Set timezone to Indonesia/Jakarta
+        date_default_timezone_set('Asia/Jakarta');
+        
+        if ($id === null) {
+            log_message('error', 'Upload payment - No ID provided');
+            return redirect()->to('/admin/orders')->with('error', 'Order ID is required');
+        }
+        
+        $order = $this->orderModel->find($id);
+        if (!$order) {
+            log_message('error', 'Upload payment - Order not found: ' . $id);
+            return redirect()->to('/admin/orders')->with('error', 'Order not found');
+        }
+        
+        // Handle POST request
+        if ($this->request->getMethod() === 'POST') {
+            log_message('debug', 'Upload payment - POST request received');
+            
+            $paymentProof = $this->request->getFile('payment_proof');
+            $paymentMethod = $this->request->getPost('payment_method');
+            $paymentAmount = $this->request->getPost('payment_amount');
+            $paymentDate = $this->request->getPost('payment_date');
+            $notes = $this->request->getPost('notes');
+            
+            // Check if this is an AJAX request
+            $isAjax = $this->request->getHeaderLine('X-Requested-With') === 'XMLHttpRequest';
+            
+            log_message('debug', 'Upload payment - AJAX: ' . ($isAjax ? 'Yes' : 'No'));
+            log_message('debug', 'Upload payment - Files: ' . print_r($_FILES, true));
+            
+            // Always return JSON for POST requests (our embedded form)
+            header('Content-Type: application/json');
+            
+            // Validate input
+            if (!$paymentProof || !$paymentProof->isValid()) {
+                log_message('error', 'Upload payment - Invalid file: ' . ($paymentProof ? $paymentProof->getError() : 'No file'));
+                return $this->jsonResponse([
+                    'success' => false,
+                    'message' => 'Please upload a valid payment proof image'
+                ], 400);
+            }
+            
+            if (!$paymentMethod || !$paymentAmount || !$paymentDate) {
+                log_message('error', 'Upload payment - Missing fields: method=' . $paymentMethod . ' amount=' . $paymentAmount . ' date=' . $paymentDate);
+                return $this->jsonResponse([
+                    'success' => false,
+                    'message' => 'Please fill all required fields'
+                ], 400);
+            }
+            
+            // Upload file
+            if ($paymentProof->isValid() && !$paymentProof->hasMoved()) {
+                $newName = $paymentProof->getRandomName();
+                
+                log_message('debug', 'Upload payment - Moving file to: uploads/payments/' . $newName);
+                
+                if (!$paymentProof->move('uploads/payments', $newName)) {
+                    log_message('error', 'Upload payment - Failed to move file');
+                    return $this->jsonResponse([
+                        'success' => false,
+                        'message' => 'Failed to upload file'
+                    ], 500);
+                }
+                
+                // Save payment record
+                $paymentData = [
+                    'order_id' => $id,
+                    'payment_proof_image' => $newName,
+                    'payment_method' => $paymentMethod,
+                    'payment_amount' => $paymentAmount,
+                    'payment_date' => date('Y-m-d H:i:s'), // Current datetime
+                    'notes' => $notes,
+                    'status' => 'verified', // Set status to verified
+                    'verified_by' => session()->get('admin_id'), // Admin user ID from session
+                    'verified_at' => date('Y-m-d H:i:s'), // Current datetime
+                    'created_at' => date('Y-m-d H:i:s'), // Current datetime
+                    'updated_at' => date('Y-m-d H:i:s')  // Current datetime
+                ];
+                
+                $db = \Config\Database::connect();
+                $result = $db->table('payment_history')->insert($paymentData);
+                
+                log_message('debug', 'Upload payment - Database insert result: ' . ($result ? 'Success' : 'Failed'));
+                
+                return $this->jsonResponse([
+                    'success' => true,
+                    'message' => 'Payment proof uploaded successfully'
+                ]);
+            } else {
+                log_message('error', 'Upload payment - File validation failed: ' . $paymentProof->getErrorString());
+                return $this->jsonResponse([
+                    'success' => false,
+                    'message' => 'File validation failed: ' . $paymentProof->getErrorString()
+                ], 400);
+            }
+        }
+        
+        // For GET requests, return the view (this shouldn't happen with our current setup)
+        // But keeping it for backward compatibility
+        $db = \Config\Database::connect();
+        $paymentHistory = $db->table('payment_history')
+                            ->where('order_id', $id)
+                            ->orderBy('created_at', 'DESC')
+                            ->get()
+                            ->getResultArray();
+        
+        $data = [
+            'order' => $order,
+            'paymentHistory' => $paymentHistory
+        ];
+        
+        return view('admin/orders/upload_payment', $data);
+    }
+    
+    /**
+     * Approve payment
+     */
+    public function approvePayment($id = null)
+    {
+        if ($id === null) {
+            return $this->jsonResponse([
+                'success' => false,
+                'message' => 'Payment ID is required'
+            ], 400);
+        }
+        
+        $db = \Config\Database::connect();
+        $payment = $db->table('payment_history')->where('id', $id)->get()->getRowArray();
+        
+        if (!$payment) {
+            return $this->jsonResponse([
+                'success' => false,
+                'message' => 'Payment not found'
+            ], 404);
+        }
+        
+        // Update payment status
+        $db->table('payment_history')->where('id', $id)->update(['status' => 'approved']);
+        
+        // Update order payment status
+        $this->orderModel->update($payment['order_id'], ['payment_status' => 'full_paid']);
+        
+        return $this->jsonResponse([
+            'success' => true,
+            'message' => 'Payment approved successfully'
+        ]);
+    }
+    
+    /**
+     * Reject payment
+     */
+    public function rejectPayment($id = null)
+    {
+        if ($id === null) {
+            return $this->jsonResponse([
+                'success' => false,
+                'message' => 'Payment ID is required'
+            ], 400);
+        }
+        
+        $db = \Config\Database::connect();
+        $payment = $db->table('payment_history')->where('id', $id)->get()->getRowArray();
+        
+        if (!$payment) {
+            return $this->jsonResponse([
+                'success' => false,
+                'message' => 'Payment not found'
+            ], 404);
+        }
+        
+        // Update payment status
+        $db->table('payment_history')->where('id', $id)->update(['status' => 'rejected']);
+        
+        return $this->jsonResponse([
+            'success' => true,
+            'message' => 'Payment rejected successfully'
+        ]);
+    }
+    
+    /**
+     * JSON response helper
+     */
+    protected function jsonResponse($data, $statusCode = 200)
+    {
+        return $this->response
+            ->setStatusCode($statusCode)
+            ->setJSON($data);
     }
 }

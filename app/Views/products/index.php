@@ -145,7 +145,7 @@
     }
     
     .btn-add-cart::before {
-        content: "Add to Cart";
+        content: "Pre-Order";
         margin-right: 0.5rem;
     }
     
@@ -800,9 +800,7 @@
                                                     <img src="<?= base_url('uploads/products/' . $product['image']) ?>" 
                                                          class="rounded" alt="<?= esc($product['name']) ?>" style="width: 60px; height: 60px; object-fit: cover;"
                                                          onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                                                    <div style="display: none; width: 60px; height: 60px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #6c757d;">
-                                                        <i class="fas fa-image"></i>
-                                                    </div>
+                                                    
                                                 <?php else: ?>
                                                     <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #6c757d;">
                                                         <i class="fas fa-image"></i>

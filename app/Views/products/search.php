@@ -93,9 +93,7 @@
                                                      class="img-fluid rounded" alt="<?= esc($product['name']) ?>"
                                                      onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
                                                      style="width: 100px; height: 100px; object-fit: cover;">
-                                                <div style="display: none; width: 100px; height: 100px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #6c757d;">
-                                                    <i class="fas fa-image" style="font-size: 1.5rem; opacity: 0.5;"></i>
-                                                </div>
+                
                                             <?php else: ?>
                                                 <div style="width: 100px; height: 100px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #6c757d;">
                                                     <i class="fas fa-image" style="font-size: 1.5rem; opacity: 0.5;"></i>
@@ -166,9 +164,7 @@
                                                  class="card-img-top product-image" alt="<?= esc($product['name']) ?>"
                                                  onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
                                                  style="height: 200px; object-fit: cover;">
-                                            <div style="display: none; width: 100%; height: 200px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); display: flex; align-items: center; justify-content: center; color: #6c757d;">
-                                                <i class="fas fa-image" style="font-size: 2rem; opacity: 0.5;"></i>
-                                            </div>
+                                            
                                         <?php else: ?>
                                             <div style="width: 100%; height: 200px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); display: flex; align-items: center; justify-content: center; color: #6c757d;">
                                                 <i class="fas fa-image" style="font-size: 2rem; opacity: 0.5;"></i>

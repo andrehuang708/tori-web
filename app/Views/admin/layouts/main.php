@@ -86,6 +86,11 @@
             <li class="nav-item">
                 <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
             </li>
+            <li class="nav-item d-block d-sm-none">
+                <button class="btn btn-link nav-link" id="mobileSidebarToggle">
+                    <i class="fas fa-chevron-left"></i> Hide Sidebar
+                </button>
+            </li>
             <li class="nav-item d-none d-sm-inline-block">
                 <a href="<?= site_url('admin') ?>" class="nav-link">Home</a>
             </li>
@@ -130,7 +135,7 @@
     <!-- /.navbar -->
 
     <!-- Main Sidebar Container -->
-    <aside class="main-sidebar sidebar-dark-primary elevation-4">
+    <aside class="main-sidebar sidebar-dark-primary elevation-4" id="mainSidebar">
         <!-- Brand Logo -->
         <a href="<?= site_url('admin') ?>" class="brand-link">
             <img src="<?= base_url('assets/img/logo.png') ?>" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
@@ -208,12 +213,46 @@
                         </a>
                     </li>
 
+                    <!-- Account Menu -->
+                    <li class="nav-header">ACCOUNT</li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-toggle="collapse" data-target="#accountMenu" aria-expanded="false" aria-controls="accountMenu">
+                            <i class="nav-icon fas fa-user-circle"></i>
+                            <p>
+                                My Account
+                                <i class="right fas fa-angle-left"></i>
+                            </p>
+                        </a>
+                        <div class="collapse" id="accountMenu">
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="<?= site_url('admin/profile') ?>" class="nav-link <?= current_url() == site_url('admin/profile') ? 'active' : '' ?>">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Profile</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="<?= site_url('admin/settings') ?>" class="nav-link <?= current_url() == site_url('admin/settings') ? 'active' : '' ?>">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Settings</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="<?= site_url('admin/logout') ?>" class="nav-link text-danger">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Logout</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+
                     <!-- Settings -->
-                    <li class="nav-header">SETTINGS</li>
+                    <li class="nav-header">SYSTEM</li>
                     <li class="nav-item">
                         <a href="<?= site_url('admin/settings') ?>" class="nav-link <?= strpos(current_url(), 'admin/settings') !== false ? 'active' : '' ?>">
                             <i class="nav-icon fas fa-cog"></i>
-                            <p>Settings</p>
+                            <p>System Settings</p>
                         </a>
                     </li>
                 </ul>

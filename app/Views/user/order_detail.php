@@ -2,6 +2,105 @@
 
 <?= $this->section('styles') ?>
 <style>
+    /* Mobile Optimization */
+    @media (max-width: 767.98px) {
+        /* General Mobile Styles */
+        body {
+            font-size: 15px;
+        }
+        
+        .container {
+            padding-left: 15px;
+            padding-right: 15px;
+        }
+        
+        /* Header */
+        .page-header {
+            margin: -20px -15px 15px -15px;
+            padding: 1.5rem 0;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            background: #fff;
+            border-radius: 0.5rem;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            margin-bottom: 1rem;
+        }
+        
+        .sidebar .nav-link {
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.25rem;
+            margin-bottom: 0.25rem;
+            font-size: 0.95rem;
+        }
+        
+        /* Card Layout */
+        .card {
+            margin-bottom: 1rem;
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+        
+        .card-header {
+            padding: 0.75rem 1rem;
+        }
+        
+        .card-body {
+            padding: 1rem;
+        }
+        
+        /* Buttons */
+        .btn {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+        }
+        
+        /* Order Items */
+        .order-item {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .order-item:last-child {
+            border-bottom: none;
+        }
+        
+        /* Status Badges */
+        .status-badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+        }
+        
+        /* Timeline */
+        .timeline {
+            padding-left: 20px;
+        }
+        
+        .timeline::before {
+            left: 8px;
+        }
+        
+        .timeline-item {
+            margin-bottom: 1rem;
+        }
+        
+        .timeline-item::before {
+            left: -20px;
+            width: 8px;
+            height: 8px;
+        }
+        
+        /* Tables */
+        .table-responsive {
+            border: 0;
+        }
+        
+        .table th, 
+        .table td {
+            padding: 0.5rem;
+        }
+    }
     body {
         background-color: #f8f9fa;
     }
@@ -81,9 +180,15 @@
         <div class="row">
         <!-- Sidebar -->
         <div class="col-md-3">
+            <!-- Mobile Menu Toggle Button -->
+            <button class="btn btn-outline-secondary w-100 d-md-none mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#accountMenuCollapse" aria-expanded="false" aria-controls="accountMenuCollapse">
+                <i class="fas fa-bars me-2"></i> Account Menu
+            </button>
+            
             <div class="sidebar">
-                <div class="p-3">
-                    <h6 class="text-muted mb-3">Account Menu</h6>
+                <div class="collapse d-md-block" id="accountMenuCollapse">
+                    <div class="p-3">
+                        <h6 class="text-muted mb-3 d-none d-md-block">Account Menu</h6>
                     <nav class="nav nav-pills flex-column">
                         <a href="<?= site_url('user/order-history') ?>" class="nav-link">
                             <i class="fas fa-list me-2"></i>Order History
@@ -103,8 +208,9 @@
                         <a href="<?= site_url('logout') ?>" class="nav-link text-danger">
                             <i class="fas fa-sign-out-alt me-2"></i>Log Out
                         </a>
-                        <hr>
-                    </nav>
+                            <hr>
+                        </nav>
+                    </div>
                 </div>
             </div>
 
@@ -112,11 +218,11 @@
         </div>
 
         <!-- Main Content -->
-        <div class="col-md-9">
+        <div class="col-12 col-md-9">
                 <!-- Order Information -->
-                <div class="card order-info-card mb-4">
-                    <div class="card-header bg-white">
-                        <h5 class="mb-0">
+                <div class="card order-info-card mb-3">
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0 fs-5">
                             <i class="fas fa-info-circle me-2"></i>Order Information
                         </h5>
                     </div>
@@ -138,12 +244,7 @@
                                         <td><?= ucfirst($order['payment_method']) ?></td>
                                     </tr>
                                     <tr>
-                                        <td><strong>Status:</strong></td>
-                                        <td>
-                                            <span class="badge bg-<?= getOrderStatusColor($order['status']) ?>">
-                                                <?= ucfirst($order['status']) ?>
-                                            </span>
-                                        </td>
+                                        
                                     </tr>
                                 </table>
                             </div>
@@ -155,13 +256,16 @@
                                         <td><?= esc($order['customer_name']) ?></td>
                                     </tr>
                                     <tr>
-                                        <td><strong>Email:</strong></td>
-                                        <td><?= esc($order['customer_email']) ?></td>
-                                    </tr>
-                                    <tr>
                                         <td><strong>Phone:</strong></td>
                                         <td><?= esc($order['customer_phone']) ?></td>
                                     </tr>
+                                    <td><strong>Status:</strong></td>
+                                        <td>
+                                            <span class="badge bg-<?= getOrderStatusColor($order['status']) ?>">
+                                                <?= ucfirst($order['status']) ?>
+                                            </span>
+                                        </td>
+                                    
                                     <?php if (!empty($order['address'])): ?>
                                     <tr>
                                         <td><strong>Address:</strong></td>
@@ -178,7 +282,7 @@
                 <div class="card mb-4">
                     <div class="card-header bg-white">
                         <div class="d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0">
+                            <h5 class="mb-0 fs-5">
                                 <i class="fas fa-shopping-bag me-2"></i>Order Items
                             </h5>
                             <span class="badge bg-secondary"><?= count($orderItems) ?> items</span>
@@ -193,7 +297,7 @@
                                             <h6 class="mb-1"><?= esc($item['product_name']) ?></h6>
                                             <small class="text-muted">Product ID: #<?= $item['product_id'] ?></small>
                                         </div>
-                                        <div class="col-md-2 text-center">
+                                        <div class="col-md-2">
                                             <span class="badge bg-light text-dark">Qty: <?= $item['quantity'] ?></span>
                                         </div>
                                         <div class="col-md-2 text-end">
@@ -285,15 +389,13 @@
                 <?php endif; ?>
 
                 <!-- Payment History -->
-                <div class="card mt-4">
+                <div class="card mt-3">
                     <div class="card-header bg-white">
                         <div class="d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0">
+                            <h5 class="mb-0 fs-5">
                                 <i class="fas fa-history me-2"></i>Payment History
                             </h5>
-                            <a href="<?= site_url('user/order/' . $order['id'] . '/upload-payment') ?>" class="btn btn-primary btn-sm">
-                                <i class="fas fa-upload me-1"></i>Upload Payment Proof
-                            </a>
+                            
                         </div>
                     </div>
                     <div class="card-body">
@@ -351,7 +453,7 @@
                                 <i class="fas fa-credit-card fa-3x text-muted mb-3"></i>
                                 <p class="text-muted">No payment proofs uploaded yet.</p>
                                 <a href="<?= site_url('user/order/' . $order['id'] . '/upload-payment') ?>" class="btn btn-primary">
-                                    <i class="fas fa-upload me-2"></i>Upload Payment Proof
+                                    <i class="fas fa-upload me-2"></i>Upload Bukti Pembayaran
                                 </a>
                             </div>
                         <?php endif; ?>

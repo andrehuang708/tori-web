@@ -57,9 +57,9 @@
                             <p class="mb-2"><?= date('M d, Y H:i', strtotime($order['created_at'])) ?></p>
                         </div>
                         <div class="col-md-6">
-                            <h6 class="text-muted">Total Amount</h6>
+                            <h6 class="text-muted">Total DP</h6>
                             <p class="mb-2"><strong>Rp <?= number_format($order['subtotal'], 0, ',', '.') ?></strong></p>
-                            <h6 class="text-muted">Payment Method</h6>
+                            <h6 class="text-muted">Pelunasan</h6>
                             <p class="mb-2"><?= ucfirst($order['payment_method']) ?></p>
                         </div>
                     </div>
@@ -92,7 +92,7 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="payment_proof" class="form-label">Payment Proof Image *</label>
+                                    <label for="payment_proof" class="form-label">Upload Bukti Transfer *</label>
                                     <div class="file-upload-wrapper">
                                         <input type="file" class="form-control" id="payment_proof" name="payment_proof" accept="image/*" required>
                                         <small class="text-muted">
@@ -107,34 +107,21 @@
                                     <?php endif; ?>
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="payment_amount" class="form-label">Payment Amount *</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text">Rp</span>
-                                        <input type="number" class="form-control" id="payment_amount" name="payment_amount" 
-                                               step="0.01" min="0" value="<?= number_format($order['subtotal'], 0, '', '') ?>" required>
-                                    </div>
-                                    <?php if (isset($validation) && $validation->getError('payment_amount')): ?>
-                                        <div class="text-danger small mt-1">
-                                            <?= $validation->getError('payment_amount') ?>
-                                        </div>
-                                    <?php endif; ?>
-                                </div>
-                            </div>
+                            <!-- Payment amount is now automatically set server-side -->
+                            <input type="hidden" name="payment_amount" value="<?= $order['subtotal'] ?>">
                         </div>
 
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="payment_method" class="form-label">Payment Method *</label>
+                                    <label for="payment_method" class="form-label">Metode Pembayaran *</label>
                                     <select class="form-select" id="payment_method" name="payment_method" required>
-                                        <option value="">Select Payment Method</option>
-                                        <option value="transfer">Bank Transfer</option>
-                                        <option value="ewallet">E-Wallet</option>
-                                        <option value="credit_card">Credit Card</option>
-                                        <option value="debit_card">Debit Card</option>
-                                        <option value="cash">Cash</option>
+                                        <option value="">Pilih Cara Bayar</option>
+                                        <option value="bca">BCA</option>
+                                        <option value="gopay">GoPay</option>
+                                        <option value="seabank">Seabank</option>
+                                        <option value="shopeepay">ShopeePay</option>
+                                        
                                     </select>
                                     <?php if (isset($validation) && $validation->getError('payment_method')): ?>
                                         <div class="text-danger small mt-1">
@@ -145,7 +132,7 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="payment_date" class="form-label">Payment Date *</label>
+                                    <label for="payment_date" class="form-label">Tanggal DP *</label>
                                     <input type="date" class="form-control" id="payment_date" name="payment_date" 
                                            value="<?= date('Y-m-d') ?>" required>
                                     <?php if (isset($validation) && $validation->getError('payment_date')): ?>

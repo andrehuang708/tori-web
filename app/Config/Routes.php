@@ -61,9 +61,9 @@ $routes->group('cart', function($routes) {
     $routes->get('clear', 'Cart::clear');
     $routes->get('count', 'Cart::count');  // Add this line for cart count
     
-    // Checkout process
-    $routes->get('checkout', 'Cart::checkout');
-    $routes->post('process-checkout', 'Cart::processCheckout');
+    // Checkout process (requires authentication)
+    $routes->get('checkout', 'Cart::checkout', ['filter' => 'auth']);
+    $routes->post('process-checkout', 'Cart::processCheckout', ['filter' => 'auth']);
     $routes->get('success/(:num)', 'Cart::success/$1');
     
     // Order tracking
@@ -84,9 +84,9 @@ $routes->group('cart', function($routes) {
     $routes->get('clear', 'Cart::clear');
     $routes->get('count', 'Cart::count');  // Add this line for cart count
     
-    // Checkout process
-    $routes->get('checkout', 'Cart::checkout');
-    $routes->post('process-checkout', 'Cart::processCheckout');
+    // Checkout process (requires authentication)
+    $routes->get('checkout', 'Cart::checkout', ['filter' => 'auth']);
+    $routes->post('process-checkout', 'Cart::processCheckout', ['filter' => 'auth']);
     $routes->get('success/(:num)', 'Cart::success/$1');
 });
 
@@ -141,11 +141,15 @@ $routes->group('admin', ['namespace' => 'App\Controllers\Admin'], function($rout
         
         // Order Management
         $routes->get('orders', 'Orders::index');
-        $routes->get('orders/(:segment)', 'Orders::index/$1'); // Filter by status
         $routes->get('orders/view/(:num)', 'Orders::view/$1');
+        $routes->get('orders/upload-payment/(:num)', 'Orders::uploadPayment/$1');
+        $routes->post('orders/upload-payment/(:num)', 'Orders::uploadPayment/$1');
+        $routes->post('orders/approve-payment/(:num)', 'Orders::approvePayment/$1');
+        $routes->post('orders/reject-payment/(:num)', 'Orders::rejectPayment/$1');
         $routes->post('orders/update-status/(:num)', 'Orders::updateStatus/$1');
         $routes->post('orders/update-payment-status/(:num)', 'Orders::updatePaymentStatus/$1');
         $routes->post('orders/update-item-status/(:num)', 'Orders::updateItemStatus/$1');
+        $routes->get('orders/(:segment)', 'Orders::index/$1'); // Filter by status - moved to end
         $routes->get('orders/delete/(:num)', 'Orders::delete/$1');
         $routes->post('orders/export', 'Orders::export');
     }); // Close the protected routes group

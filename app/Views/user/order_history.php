@@ -1,6 +1,10 @@
 <?= $this->extend('layouts/main') ?>
 
 <?= $this->section('styles') ?>
+<!-- DataTables CSS -->
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.bootstrap4.min.css">
+
 <style>
     body {
         background-color: #f8f9fa;
@@ -11,24 +15,50 @@
         padding: 2rem 0;
         margin: -20px -15px 20px -15px;
     }
-    .order-card {
-        transition: all 0.3s ease;
-        margin-bottom: 1rem;
-        border-left: 4px solid #007bff;
-    }
-    .order-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    .sidebar {
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
     .status-badge {
         font-size: 0.8rem;
         padding: 0.35rem 0.75rem;
         border-radius: 20px;
     }
-    .sidebar {
-        background-color: white;
-        border-radius: 10px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    /* DataTable custom styles */
+    .dataTables_wrapper .dataTables_filter {
+        float: right;
+        text-align: right;
+        margin-bottom: 1rem;
+    }
+    .dataTables_wrapper .dataTables_length {
+        float: left;
+        margin-bottom: 1rem;
+    }
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        padding: 0.25rem 0.75rem;
+        margin-left: 0.25rem;
+        border-radius: 4px;
+    }
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current, 
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+        background: #007bff;
+        color: white !important;
+        border: 1px solid #007bff;
+    }
+    .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+        background: #e9ecef;
+        color: #007bff !important;
+    }
+    .dataTables_wrapper .dataTables_info {
+        clear: both;
+        float: left;
+        padding-top: 0.75rem;
+    }
+    .dataTables_wrapper .dataTables_paginate {
+        float: right;
+        text-align: right;
+        padding-top: 0.25rem;
     }
     .nav-link {
         color: #6c757d;
@@ -67,33 +97,39 @@
 
     <div class="row">
         <!-- Sidebar -->
-        <div class="col-md-3">
-            <div class="sidebar">
-                <div class="p-3">
-                    <h6 class="text-muted mb-3">Account Menu</h6>
-                    <nav class="nav nav-pills flex-column">
-                        <a href="<?= site_url('user/order-history') ?>" class="nav-link active">
-                            <i class="fas fa-list me-2"></i>Order History
-                        </a>
-                        <a href="<?= site_url('user/track-order') ?>" class="nav-link">
-                            <i class="fas fa-search me-2"></i>Track Order
-                        </a>
-                        <a href="<?= site_url('user/profile') ?>" class="nav-link">
-                            <i class="fas fa-user me-2"></i>Profile Settings
-                        </a>
-                    
-                        <a href="<?= site_url('cart') ?>" class="nav-link">
-                            <i class="fas fa-shopping-cart me-2"></i>Shopping Cart
-                        </a>
-                        <a href="<?= site_url('/') ?>" class="nav-link">
-                            <i class="fas fa-home me-2"></i>Back to Shop
-                        </a>
-                          <a href="<?= site_url('logout') ?>" class="nav-link text-danger">
-                            <i class="fas fa-sign-out-alt me-2"></i>Log Out
-                        </a>
-                        <hr>
-                        
-                    </nav>
+        <div class="col-md-3 mb-3">
+            <div class="d-md-none mb-3">
+                <button class="btn btn-outline-primary w-100" type="button" data-bs-toggle="collapse" data-bs-target="#accountMenuCollapse" aria-expanded="false" aria-controls="accountMenuCollapse">
+                    <i class="fas fa-bars me-2"></i> Account Menu
+                </button>
+            </div>
+            
+            <div class="collapse d-md-block" id="accountMenuCollapse">
+                <div class="sidebar">
+                    <div class="p-3">
+                        <h6 class="text-muted mb-3 d-none d-md-block">Account Menu</h6>
+                        <nav class="nav nav-pills flex-column">
+                            <a href="<?= site_url('user/order-history') ?>" class="nav-link active">
+                                <i class="fas fa-list me-2"></i>Order History
+                            </a>
+                            <a href="<?= site_url('user/track-order') ?>" class="nav-link">
+                                <i class="fas fa-search me-2"></i>Track Order
+                            </a>
+                            <a href="<?= site_url('user/profile') ?>" class="nav-link">
+                                <i class="fas fa-user me-2"></i>Profile Settings
+                            </a>
+                            <a href="<?= site_url('cart') ?>" class="nav-link">
+                                <i class="fas fa-shopping-cart me-2"></i>Shopping Cart
+                            </a>
+                            <a href="<?= site_url('/') ?>" class="nav-link">
+                                <i class="fas fa-home me-2"></i>Back to Shop
+                            </a>
+                            <a href="<?= site_url('logout') ?>" class="nav-link text-danger">
+                                <i class="fas fa-sign-out-alt me-2"></i>Log Out
+                            </a>
+                            <hr class="d-none d-md-block">
+                        </nav>
+                    </div>
                 </div>
             </div>
         </div>
@@ -101,305 +137,162 @@
         <!-- Main Content -->
         <div class="col-md-9">
             <!-- Filter Section -->
-            <div class="filter-section">
-                <div class="row align-items-center mb-3">
-                    <div class="col-md-6">
-                        <h5 class="mb-0">All Orders</h5>
-                        <small class="text-muted"><span id="orderCount"><?= count($orders) ?></span> orders found</small>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="input-group">
-                            <input type="text" id="searchInput" class="form-control" placeholder="Search by order number, phone, or status...">
-                            <button class="btn btn-outline-secondary" type="button" id="clearSearch">
-                                <i class="fas fa-times"></i>
-                            </button>
+            
+
+            <!-- Orders Table -->
+            <div class="card">
+                <div class="card-body">
+                    <?php if (empty($orders)): ?>
+                        <div class="text-center py-5">
+                            <i class="fas fa-shopping-bag fa-4x text-muted mb-3"></i>
+                            <h4>No Orders Found</h4>
+                            <p class="text-muted">You haven't placed any orders yet.</p>
+                            <a href="<?= site_url('/') ?>" class="btn btn-primary">
+                                <i class="fas fa-shopping-cart me-2"></i>Start Shopping
+                            </a>
                         </div>
-                    </div>
-                </div>
-                
-                <!-- Pagination Controls -->
-                <div class="row align-items-center">
-                    <div class="col-md-6">
-                        <div class="d-flex align-items-center">
-                            <label class="me-2">Show:</label>
-                            <select id="pageSize" class="form-select form-select-sm" style="width: auto;">
-                                <option value="10">10</option>
-                                <option value="25" selected>25</option>
-                                <option value="50">50</option>
-                                <option value="<?= count($orders) ?>">All</option>
-                            </select>
-                            <span class="ms-2">per page</span>
+                    <?php else: ?>
+                        <div class="table-responsive">
+                            <table id="ordersTable" class="table table-hover" style="width:100%">
+                                <thead>
+                                    <tr>
+                                        <th data-priority="1">Order #</th>
+                                        <th data-priority="2">Date</th>
+                                        <th data-priority="4">Items</th>
+                                        <th data-priority="3">Status</th>
+                                        <th data-priority="5">Total</th>
+                                        <th data-priority="6">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($orders as $order): 
+                                        $statusColor = getOrderStatusColor($order['status']);
+                                    ?>
+                                        <tr>
+                                            <td class="font-weight-bold">#<?= esc($order['order_number']) ?></td>
+                                            <td><?= date('M d, Y', strtotime($order['created_at'])) ?></td>
+                                            <td><?= count($order['items']) ?> item<?= count($order['items']) > 1 ? 's' : '' ?></td>
+                                            <td>
+                                                <span class="badge bg-<?= $statusColor ?>">
+                                                    <?= ucfirst($order['status']) ?>
+                                                </span>
+                                            </td>
+                                            <td class="font-weight-bold">Rp <?= number_format($order['subtotal'], 0, ',', '.') ?></td>
+                                            <td>
+                                                <a href="<?= site_url('user/order/' . $order['id']) ?>" class="btn btn-sm btn-outline-primary" title="View Details">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
                         </div>
-                    </div>
-                    <div class="col-md-6">
-                        <nav id="paginationNav">
-                            <ul class="pagination pagination-sm justify-content-end mb-0">
-                                <!-- Pagination will be generated by JavaScript -->
-                            </ul>
-                        </nav>
-                    </div>
+                    <?php endif; ?>
                 </div>
             </div>
-
-            <!-- Orders List -->
-            <?php if (empty($orders)): ?>
-                <div class="empty-state card">
-                    <div class="card-body">
-                        <i class="fas fa-shopping-bag"></i>
-                        <h4>No Orders Found</h4>
-                        <p class="text-muted">You haven't placed any orders yet.</p>
-                        <a href="<?= site_url('/') ?>" class="btn btn-primary">
-                            <i class="fas fa-shopping-cart me-2"></i>Start Shopping
-                        </a>
-                    </div>
-                </div>
-            <?php else: ?>
-                <div id="ordersContainer">
-                    <?php foreach ($orders as $order): ?>
-                        <div class="order-card card" data-order-number="<?= esc($order['order_number']) ?>" 
-                             data-phone="<?= esc($order['customer_phone']) ?>" data-status="<?= esc($order['status']) ?>">
-                            <div class="card-body">
-                                <div class="row align-items-center">
-                                    <div class="col-md-3">
-                                        <h6 class="mb-1 fw-bold"><?= esc($order['order_number']) ?></h6>
-                                        <small class="text-muted">
-                                            <i class="fas fa-calendar me-1"></i>
-                                            <?= date('M d, Y H:i', strtotime($order['created_at'])) ?>
-                                        </small>
-                                        <br>
-                                        <small class="text-muted">
-                                            <i class="fas fa-phone me-1"></i>
-                                            <?= esc($order['customer_phone']) ?>
-                                        </small>
-                                    </div>
-                                    <div class="col-md-2">
-                                        <span class="status-badge badge bg-<?= getOrderStatusColor($order['status']) ?>">
-                                            <?= ucfirst($order['status']) ?>
-                                        </span>
-                                    </div>
-                                    <div class="col-md-2">
-                                        <small class="text-muted d-block">Payment Method</small>
-                                        <strong><?= ucfirst($order['payment_method']) ?></strong>
-                                    </div>
-                                    <div class="col-md-2">
-                                        <small class="text-muted d-block">Total Amount</small>
-                                        <h5 class="mb-0 text-primary">Rp <?= number_format($order['subtotal'], 0, ',', '.') ?></h5>
-                                    </div>
-                                    <div class="col-md-2">
-                                        <small class="text-muted d-block">Items</small>
-                                        <h6 class="mb-0"><?= count($order['items']) ?> items</h6>
-                                    </div>
-                                    <div class="col-md-1 text-end">
-                                         <small class="text-muted d-block">Actions</small>
-                                         <a href="<?= site_url('user/order/' . $order['id']) ?>" class="btn btn-sm btn-outline-primary">
-                                                            <i class="fas fa-eye"></i>
-                                                        </a>
-                                        </div>
-                                      
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
-                
-                <!-- No Results Message -->
-                <div id="noResults" class="empty-state card" style="display: none;">
-                    <div class="card-body">
-                        <i class="fas fa-search"></i>
-                        <h4>No Orders Found</h4>
-                        <p class="text-muted">No orders match your search criteria.</p>
-                        <button class="btn btn-outline-primary" onclick="clearSearch()">
-                            <i class="fas fa-times me-2"></i>Clear Search
-                        </button>
-                    </div>
-                </div>
-            <?php endif; ?>
         </div>
     </div>
 </div>
 <?= $this->endSection() ?>
 
 <?= $this->section('scripts') ?>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<!-- DataTables CSS -->
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.bootstrap4.min.css">
+
+<!-- DataTables JS -->
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap4.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.9/js/responsive.bootstrap4.min.js"></script>
+
 <script>
-    // Search and Pagination functionality
-    document.addEventListener('DOMContentLoaded', function() {
-        const searchInput = document.getElementById('searchInput');
-        const clearButton = document.getElementById('clearSearch');
-        const pageSizeSelect = document.getElementById('pageSize');
-        const ordersContainer = document.getElementById('ordersContainer');
-        const noResults = document.getElementById('noResults');
-        const orderCount = document.getElementById('orderCount');
-        const paginationNav = document.getElementById('paginationNav');
-        
-        let allOrders = [];
-        let filteredOrders = [];
-        let currentPage = 1;
-        let pageSize = 25;
-
-        // Store all orders
-        if (ordersContainer) {
-            allOrders = Array.from(ordersContainer.querySelectorAll('.order-card'));
-            filteredOrders = [...allOrders];
-        }
-
-        // Pagination functions
-        function updatePagination() {
-            const totalPages = Math.ceil(filteredOrders.length / pageSize);
-            const startIndex = (currentPage - 1) * pageSize;
-            const endIndex = startIndex + pageSize;
+$(document).ready(function() {
+    // Initialize DataTable
+    var table = $('#ordersTable').DataTable({
+        responsive: true,
+        order: [[0, 'desc']], // Sort by order ID (1st column) in descending order
+        pageLength: 10,
+        lengthMenu: [[10, 25, 50, -1], [10, 25, 50, 'All']],
+        processing: true,
+        language: {
+            search: "Search orders:",
+            searchPlaceholder: "Order #, status, etc...",
+            lengthMenu: "Show _MENU_ orders",
+            zeroRecords: "No matching orders found",
+            info: "Showing _START_ to _END_ of _TOTAL_ orders",
+            infoEmpty: "No orders available",
+            infoFiltered: "(filtered from _MAX_ total orders)",
+            paginate: {
+                first: '«',
+                previous: '‹',
+                next: '›',
+                last: '»'
+            }
+        },
+        dom: "<'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
+             "<'row'<'col-sm-12'tr>>" +
+             "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+        initComplete: function() {
+            // Style search box
+            $('.dataTables_filter input')
+                .addClass('form-control form-control-sm')
+                .attr('placeholder', 'Search orders...')
+                .css('width', '250px');
+                
+            // Style length menu
+            $('.dataTables_length select').addClass('form-select form-select-sm');
             
-            // Show/hide orders for current page
-            filteredOrders.forEach((order, index) => {
-                if (index >= startIndex && index < endIndex) {
-                    order.style.display = '';
-                } else {
-                    order.style.display = 'none';
-                }
-            });
-
-            // Update pagination controls
-            if (paginationNav) {
-                const paginationList = paginationNav.querySelector('ul');
-                paginationList.innerHTML = '';
-
-                // Previous button
-                const prevLi = document.createElement('li');
-                prevLi.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
-                prevLi.innerHTML = `<a class="page-link" href="#" data-page="${currentPage - 1}">Previous</a>`;
-                paginationList.appendChild(prevLi);
-
-                // Page numbers
-                const maxVisiblePages = 5;
-                let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
-                let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-
-                if (endPage - startPage < maxVisiblePages - 1) {
-                    startPage = Math.max(1, endPage - maxVisiblePages + 1);
-                }
-
-                for (let i = startPage; i <= endPage; i++) {
-                    const li = document.createElement('li');
-                    li.className = `page-item ${i === currentPage ? 'active' : ''}`;
-                    li.innerHTML = `<a class="page-link" href="#" data-page="${i}">${i}</a>`;
-                    paginationList.appendChild(li);
-                }
-
-                // Next button
-                const nextLi = document.createElement('li');
-                nextLi.className = `page-item ${currentPage === totalPages || totalPages === 0 ? 'disabled' : ''}`;
-                nextLi.innerHTML = `<a class="page-link" href="#" data-page="${currentPage + 1}">Next</a>`;
-                paginationList.appendChild(nextLi);
-
-                // Add click handlers
-                paginationList.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const pageLink = e.target.closest('.page-link');
-                    if (pageLink && !pageLink.parentElement.classList.contains('disabled')) {
-                        const page = parseInt(pageLink.getAttribute('data-page'));
-                        if (page >= 1 && page <= totalPages) {
-                            currentPage = page;
-                            updatePagination();
-                        }
-                    }
-                });
-            }
-
-            // Update results info
-            const visibleCount = filteredOrders.slice(startIndex, endIndex).length;
-            if (orderCount) {
-                if (filteredOrders.length === 0) {
-                    orderCount.textContent = '0';
-                } else {
-                    orderCount.textContent = `${startIndex + 1}-${Math.min(endIndex, filteredOrders.length)} of ${filteredOrders.length}`;
-                }
-            }
+            // Add custom class to info text
+            $('.dataTables_info').addClass('text-muted');
         }
-
-        // Search function
-        function performSearch() {
-            const searchTerm = searchInput.value.toLowerCase().trim();
-
-            if (searchTerm === '') {
-                filteredOrders = [...allOrders];
-            } else {
-                filteredOrders = allOrders.filter(orderCard => {
-                    const orderNumber = orderCard.getAttribute('data-order-number').toLowerCase();
-                    const phone = orderCard.getAttribute('data-phone').toLowerCase();
-                    const status = orderCard.getAttribute('data-status').toLowerCase();
-                    const orderText = orderCard.textContent.toLowerCase();
-
-                    return orderNumber.includes(searchTerm) || 
-                           phone.includes(searchTerm) || 
-                           status.includes(searchTerm) || 
-                           orderText.includes(searchTerm);
-                });
-            }
-
-            // Reset to first page when searching
-            currentPage = 1;
-            
-            // Show/hide no results message
-            if (noResults && ordersContainer) {
-                if (filteredOrders.length === 0) {
-                    noResults.style.display = '';
-                    ordersContainer.style.display = 'none';
-                    paginationNav.style.display = 'none';
-                } else {
-                    noResults.style.display = 'none';
-                    ordersContainer.style.display = '';
-                    paginationNav.style.display = '';
-                }
-            }
-
-            updatePagination();
-        }
-
-        // Clear search function
-        function clearSearch() {
-            searchInput.value = '';
-            performSearch();
-        }
-
-        // Page size change handler
-        function changePageSize() {
-            pageSize = parseInt(pageSizeSelect.value);
-            currentPage = 1;
-            updatePagination();
-        }
-
-        // Event listeners
-        if (searchInput) {
-            searchInput.addEventListener('input', performSearch);
-            searchInput.addEventListener('keyup', function(e) {
-                if (e.key === 'Escape') {
-                    clearSearch();
-                }
-            });
-        }
-
-        if (clearButton) {
-            clearButton.addEventListener('click', clearSearch);
-        }
-
-        if (pageSizeSelect) {
-            pageSizeSelect.addEventListener('change', changePageSize);
-        }
-
-        // Global functions
-        window.clearSearch = clearSearch;
-
-        // Initialize pagination
-        updatePagination();
     });
-
-    function printOrder(orderNumber) {
-        const printContent = document.querySelector('.order-card');
-        if (printContent) {
-            window.print();
-        }
+    
+    // Style pagination buttons
+    function stylePagination() {
+        $('.paginate_button')
+            .removeClass('btn-primary btn-secondary')
+            .addClass('btn-sm btn-outline-secondary mx-1');
+            
+        $('.paginate_button.current')
+            .removeClass('btn-outline-secondary')
+            .addClass('btn-primary');
     }
+    
+    // Apply styles on initial load and after each draw
+    stylePagination();
+    table.on('draw', stylePagination);
+    
+    // Add margin to search box
+    $('.dataTables_filter').css('margin-bottom', '1rem');
+    
+    // Fix responsive child row display
+    table.on('responsive-display', function(e, datatable, row, showHide, update) {
+        if (showHide) {
+            $('div.dtr-data', row.child()).slideDown('fast');
+        } else {
+            $('div.dtr-data', row.child()).slideUp('fast');
+        }
+    });
+});
+
+// Add custom styles for responsive display
+$('<style>' +
+    '.dtr-data { padding: 0px; }' +
+    '.dtr-data table { width: 100%; }' +
+    '.dtr-title { font-weight: bold; min-width: 100px; display: inline-block; }' +
+    '.dtr-data::before { display: none; }' +
+    '.dtr-details { width: 100%; }' +
+    '.dtr-details tr { border-bottom: 1px solid #eee; }' +
+    '.dtr-details td { padding: 8px 5px; }' +
+    '.dtr-details td:first-child { font-weight: bold; }' +
+    '.dtr-bs-modal .modal-dialog { margin: 0.5rem; }' +
+    '.dtr-bs-modal .modal-body { padding: 15px; }' +
+    '.dtr-bs-modal .modal-header { padding: 10px 15px; }' +
+    '.dtr-bs-modal .close { margin: -1rem -1rem -1rem auto; }' +
+'</style>').appendTo('head');
+</script>
 </script>
 <?= $this->endSection() ?>
 
