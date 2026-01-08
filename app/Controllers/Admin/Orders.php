@@ -550,7 +550,7 @@ class Orders extends BaseController
                 
                 log_message('debug', 'Upload payment - Moving file to: uploads/payments/' . $newName);
                 
-                if (!$paymentProof->move('uploads/payments', $newName)) {
+                if (!$paymentProof->move('uploads/payment_proofs/', $newName)) {
                     log_message('error', 'Upload payment - Failed to move file');
                     return $this->jsonResponse([
                         'success' => false,

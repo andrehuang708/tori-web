@@ -317,11 +317,11 @@ if ($orderTotal == 0) {
                                                             </td>
                                                             <td>
                                                                 <?php if ($payment['payment_proof_image']): ?>
-                                                                    <img src="<?= base_url('uploads/payments/' . $payment['payment_proof_image']) ?>" 
+                                                                    <img src="<?= base_url('uploads/payment_proofs/' . $payment['payment_proof_image']) ?>" 
                                                                          alt="Payment Proof" 
                                                                          class="img-thumbnail" 
                                                                          style="max-width: 60px; max-height: 40px; cursor: pointer;"
-                                                                         onclick="window.open('<?= base_url('uploads/payments/' . $payment['payment_proof_image']) ?>', '_blank')">
+                                                                         onclick="window.open('<?= base_url('uploads/payment_proofs/' . $payment['payment_proof_image']) ?>', '_blank')">
                                                                 <?php else: ?>
                                                                     <span class="text-muted">No image</span>
                                                                 <?php endif; ?>
@@ -339,7 +339,7 @@ if ($orderTotal == 0) {
                                                             <td>
                                                                 <div class="btn-group btn-group-sm">
                                                                     <?php if ($payment['payment_proof_image']): ?>
-                                                                        <a href="<?= base_url('uploads/payments/' . $payment['payment_proof_image']) ?>" 
+                                                                        <a href="<?= base_url('uploads/payment_proofs/' . $payment['payment_proof_image']) ?>" 
                                                                            target="_blank" 
                                                                            class="btn btn-outline-primary" 
                                                                            title="View Full Size">

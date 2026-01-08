@@ -92,6 +92,7 @@
         }
     </style>
     
+    <?= $this->renderSection('meta') ?>
     <?= $this->renderSection('styles') ?>
 </head>
 <body class="hold-transition layout-top-nav">

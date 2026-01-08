@@ -57,7 +57,7 @@ $routes->group('cart', function($routes) {
     // Cart actions
     $routes->post('add', 'Cart::add');
     $routes->post('update', 'Cart::update');
-    $routes->get('remove/(:segment)', 'Cart::remove/$1');
+    $routes->post('remove/(:segment)', 'Cart::remove/$1');
     $routes->get('clear', 'Cart::clear');
     $routes->get('count', 'Cart::count');  // Add this line for cart count
     

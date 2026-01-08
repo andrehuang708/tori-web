@@ -46,7 +46,7 @@
                                     </thead>
                                     <tbody>
                                         <?php foreach ($cartItems as $id => $item): ?>
-                                            <tr>
+                                            <tr data-product-id="<?= $id ?>">
                                                 <td>
                                                     <div class="d-flex align-items-center">
                                                         <?php if (!empty($item['image'])): ?>
@@ -69,7 +69,7 @@
                                                 </td>
                                                 <td>Rp <?= number_format($item['price'] * $item['quantity'], 0, ',', '.') ?></td>
                                                 <td>
-                                                    <button class="btn btn-sm btn-danger">
+                                                    <button class="btn btn-sm btn-danger" onclick="removeFromCart('<?= $id ?>')">
                                                         <i class="fas fa-trash"></i>
                                                     </button>
                                                 </td>
@@ -101,5 +101,65 @@
     
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+    function removeFromCart(productId) {
+        if (confirm('Are you sure you want to remove this item from your cart?')) {
+            $.ajax({
+                url: '<?= site_url('cart/remove') ?>/' + productId,
+                method: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        location.reload(); // Refresh the page to update cart
+                    } else {
+                        alert('Error: ' + response.message);
+                    }
+                },
+                error: function() {
+                    alert('Error removing item from cart. Please try again.');
+                }
+            });
+        }
+    }
+    
+    // Update quantity functionality
+    $(document).ready(function() {
+        $('input[type="number"]').on('change', function() {
+            var productId = $(this).closest('tr').data('product-id');
+            var quantity = $(this).val();
+            
+            if (quantity < 1) {
+                quantity = 1;
+                $(this).val(1);
+            }
+            
+            updateCartQuantity(productId, quantity);
+        });
+    });
+    
+    function updateCartQuantity(productId, quantity) {
+        $.ajax({
+            url: '<?= site_url('cart/update') ?>',
+            method: 'POST',
+            data: {
+                '<?= csrf_token() ?>': '<?= csrf_hash() ?>',
+                item_id: productId,
+                quantity: quantity
+            },
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    location.reload(); // Refresh to update totals
+                } else {
+                    alert('Error: ' + response.message);
+                }
+            },
+            error: function() {
+                alert('Error updating cart. Please try again.');
+            }
+        });
+    }
+    </script>
 </body>
 </html>

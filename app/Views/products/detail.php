@@ -1,5 +1,24 @@
 <?= $this->extend('layouts/main') ?>
 
+<?= $this->section('meta') ?>
+<meta property="og:title" content="<?= esc($product['name']) ?>">
+<meta property="og:description" content="DP: Rp <?= number_format($product['price'], 0, ',', '.') ?><?= (!empty($product['po_price_desc']) && $product['po_price_desc'] > 0 ? ' | Harga PO: Rp ' . number_format($product['po_price_desc'], 0, ',', '.') : '') ?>">
+<?php if (!empty($product['image'])): ?>
+<meta property="og:image" content="<?= base_url('uploads/products/' . $product['image']) ?>">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<?php endif; ?>
+<meta property="og:url" content="<?= current_url() ?>">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Tori Web">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="<?= esc($product['name']) ?>">
+<meta name="twitter:description" content="DP: Rp <?= number_format($product['price'], 0, ',', '.') ?><?= (!empty($product['po_price_desc']) && $product['po_price_desc'] > 0 ? ' | Harga PO: Rp ' . number_format($product['po_price_desc'], 0, ',', '.') : '') ?>">
+<?php if (!empty($product['image'])): ?>
+<meta name="twitter:image" content="<?= base_url('uploads/products/' . $product['image']) ?>">
+<?php endif; ?>
+<?= $this->endSection() ?>
+
 <?= $this->section('styles') ?>
 <style>
 .bg-gradient-purple {

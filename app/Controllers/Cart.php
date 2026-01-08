@@ -162,6 +162,23 @@ class Cart extends BaseController
      */
     public function remove($itemId)
     {
+        // Handle AJAX requests (both GET and POST)
+        if ($this->request->isAJAX()) {
+            if ($this->cart->remove($itemId)) {
+                return $this->jsonResponse([
+                    'success' => true,
+                    'message' => 'Item removed from cart',
+                    'cart_summary' => $this->cart->summary()
+                ]);
+            } else {
+                return $this->jsonResponse([
+                    'success' => false,
+                    'message' => 'Failed to remove item from cart'
+                ], 400);
+            }
+        }
+        
+        // Handle regular requests (fallback)
         if ($this->cart->remove($itemId)) {
             return $this->redirectWithMessage('cart', 'Item removed from cart');
         } else {
