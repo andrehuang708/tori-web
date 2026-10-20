@@ -212,6 +212,11 @@ class Customers extends BaseController
             return redirect()->to('admin/login')->with('error', 'You must be logged in as admin to access this page.');
         }
 
+        // Destructive action: POST only (see routes). Reject GET/crawlers.
+        if (strtolower($this->request->getMethod()) !== 'post') {
+            return redirect()->to('admin/customers')->with('error', 'Method not allowed');
+        }
+
         if (!$id) {
             return redirect()->to('admin/customers')->with('error', 'Customer ID is required');
         }

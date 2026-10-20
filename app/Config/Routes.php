@@ -60,7 +60,7 @@ $routes->group('cart', function($routes) {
     $routes->post('add', 'Cart::add');
     $routes->post('update', 'Cart::update');
     $routes->post('remove/(:segment)', 'Cart::remove/$1');
-    $routes->get('clear', 'Cart::clear');
+    $routes->post('clear', 'Cart::clear');
     $routes->get('count', 'Cart::count');  // Add this line for cart count
     
     // Checkout process (requires authentication)
@@ -74,23 +74,6 @@ $routes->group('cart', function($routes) {
 
 // Checkout success route (alternative path)
 $routes->get('checkout/success/(:num)', 'Cart::success/$1');
-
-$routes->group('cart', function($routes) {
-    // View cart
-    $routes->get('/', 'Cart::index');
-    
-    // Cart actions
-    $routes->post('add', 'Cart::add');
-    $routes->post('update', 'Cart::update');
-    $routes->get('remove/(:segment)', 'Cart::remove/$1');
-    $routes->get('clear', 'Cart::clear');
-    $routes->get('count', 'Cart::count');  // Add this line for cart count
-    
-    // Checkout process (requires authentication)
-    $routes->get('checkout', 'Cart::checkout', ['filter' => 'auth']);
-    $routes->post('process-checkout', 'Cart::processCheckout', ['filter' => 'auth']);
-    $routes->get('success/(:num)', 'Cart::success/$1');
-});
 
 // Serve uploaded files
 $routes->get('uploads/payment_proofs/(:segment)', 'User::servePaymentProof/$1');
@@ -120,7 +103,7 @@ $routes->group('admin', ['namespace' => 'App\Controllers\Admin'], function($rout
         $routes->get('products/create', 'Products::create');
         $routes->post('products/save', 'Products::save');
         $routes->get('products/edit/(:num)', 'Products::edit/$1');
-        $routes->get('products/delete/(:num)', 'Products::delete/$1');
+        $routes->post('products/delete/(:num)', 'Products::delete/$1');
         
         // Featured Products Management
         $routes->get('products/featured', 'Products::featured', ['as' => 'admin.products.featured']);
@@ -132,7 +115,7 @@ $routes->group('admin', ['namespace' => 'App\Controllers\Admin'], function($rout
         $routes->get('categories/create', 'Categories::create');
         $routes->post('categories/save', 'Categories::save');
         $routes->get('categories/edit/(:num)', 'Categories::edit/$1');
-        $routes->get('categories/delete/(:num)', 'Categories::delete/$1');
+        $routes->post('categories/delete/(:num)', 'Categories::delete/$1');
         
         // Customer Management
         $routes->get('customers', 'Customers::index');
@@ -140,7 +123,7 @@ $routes->group('admin', ['namespace' => 'App\Controllers\Admin'], function($rout
         $routes->get('customers/edit/(:num)', 'Customers::edit/$1');
         $routes->post('customers/update/(:num)', 'Customers::update/$1');
         $routes->post('customers/reset-password/(:num)', 'Customers::resetPassword/$1');
-        $routes->get('customers/delete/(:num)', 'Customers::delete/$1');
+        $routes->post('customers/delete/(:num)', 'Customers::delete/$1');
         
         // Order Management
         $routes->get('orders', 'Orders::index');
@@ -154,7 +137,7 @@ $routes->group('admin', ['namespace' => 'App\Controllers\Admin'], function($rout
         $routes->post('orders/update-payment-status/(:num)', 'Orders::updatePaymentStatus/$1');
         $routes->post('orders/update-item-status/(:num)', 'Orders::updateItemStatus/$1');
         $routes->get('orders/(:segment)', 'Orders::index/$1'); // Filter by status - moved to end
-        $routes->get('orders/delete/(:num)', 'Orders::delete/$1');
+        $routes->post('orders/delete/(:num)', 'Orders::delete/$1');
         $routes->post('orders/export', 'Orders::export');
     }); // Close the protected routes group
 }); // Close the admin group

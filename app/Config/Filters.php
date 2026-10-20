@@ -10,6 +10,7 @@ use CodeIgniter\Filters\InvalidChars;
 use CodeIgniter\Filters\SecureHeaders;
 use App\Filters\AdminAuthFilter;
 use App\Filters\AuthFilter;
+use App\Filters\SafeToolbarFilter;
 
 class Filters extends BaseConfig
 {
@@ -21,7 +22,7 @@ class Filters extends BaseConfig
      */
     public $aliases = [
         'csrf'          => CSRF::class,
-        'toolbar'       => DebugToolbar::class,
+        'toolbar'       => SafeToolbarFilter::class,
         'honeypot'      => Honeypot::class,
         'invalidchars'  => InvalidChars::class,
         'secureheaders' => SecureHeaders::class,
@@ -42,6 +43,9 @@ class Filters extends BaseConfig
             // 'invalidchars',
         ],
         'after' => [
+            // Runs via SafeToolbarFilter (see app/Filters): keeps the debug
+            // toolbar working, but skips it instead of 500-ing the response
+            // when toolbar data contains malformed UTF-8 (e.g. /o/abc123).
             'toolbar',
             // 'honeypot',
             // 'secureheaders',

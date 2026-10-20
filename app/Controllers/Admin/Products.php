@@ -299,6 +299,11 @@ class Products extends BaseController
      */
     public function delete($id = null)
     {
+        // Destructive action: POST only (see routes). Reject GET/crawlers.
+        if (strtolower($this->request->getMethod()) !== 'post') {
+            return redirect()->to('admin/products')->with('error', 'Method not allowed');
+        }
+
         if ($id === null) {
             return redirect()->to('admin/products')->with('error', 'Product ID is required');
         }

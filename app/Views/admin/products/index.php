@@ -88,11 +88,14 @@
                                                    title="Share on WhatsApp">
                                                     <i class="fab fa-whatsapp"></i>
                                                 </a>
-                                                <a href="<?= site_url('admin/products/delete/' . $product['id']) ?>" 
-                                                   class="btn btn-sm btn-danger" 
-                                                   onclick="return confirm('Are you sure you want to delete this product?')">
-                                                    <i class="fas fa-trash"></i>
-                                                </a>
+                                                <form action="<?= site_url('admin/products/delete/' . $product['id']) ?>" method="post" class="d-inline"
+                                                      onsubmit="return confirm('Are you sure you want to delete this product?')"
+                                                      title="Delete">
+                                                    <?= csrf_field() ?>
+                                                    <button type="submit" class="btn btn-sm btn-danger">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </form>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>

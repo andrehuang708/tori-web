@@ -162,6 +162,18 @@ class Cart extends BaseController
      */
     public function remove($itemId)
     {
+        // Destructive action: POST only (see routes). Reject GET/crawlers.
+        if (strtolower($this->request->getMethod()) !== 'post') {
+            if ($this->request->isAJAX()) {
+                return $this->jsonResponse([
+                    'success' => false,
+                    'message' => 'Method not allowed'
+                ], 405);
+            }
+
+            return $this->redirectWithMessage('cart', 'Method not allowed', 'danger');
+        }
+
         // Handle AJAX requests
         if ($this->request->isAJAX()) {
             if ($this->cart->remove($itemId)) {
@@ -191,6 +203,11 @@ class Cart extends BaseController
      */
     public function clear()
     {
+        // Destructive action: POST only (see routes). Reject GET/crawlers.
+        if (strtolower($this->request->getMethod()) !== 'post') {
+            return $this->redirectWithMessage('cart', 'Method not allowed', 'danger');
+        }
+
         $this->cart->destroy();
         return $this->redirectWithMessage('cart', 'Cart cleared');
     }

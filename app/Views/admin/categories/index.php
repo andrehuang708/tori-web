@@ -69,12 +69,14 @@
                                                    title="Edit Category">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
-                                                <a href="<?= site_url('admin/categories/delete/' . $category['id']) ?>" 
-                                                   class="btn btn-sm btn-danger" 
-                                                   title="Delete Category"
-                                                   onclick="return confirm('Are you sure you want to delete this category?')">
-                                                    <i class="fas fa-trash"></i>
-                                                </a>
+                                                <form action="<?= site_url('admin/categories/delete/' . $category['id']) ?>" method="post" class="d-inline"
+                                                      onsubmit="return confirm('Are you sure you want to delete this category?')"
+                                                      title="Delete Category">
+                                                    <?= csrf_field() ?>
+                                                    <button type="submit" class="btn btn-sm btn-danger">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </form>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>

@@ -112,11 +112,13 @@
                         <a href="<?= site_url('admin/customers/edit/' . $customer['id']) ?>" class="btn btn-warning">
                             <i class="fas fa-edit mr-1"></i> Edit Customer
                         </a>
-                        <a href="<?= site_url('admin/customers/delete/' . $customer['id']) ?>" 
-                           class="btn btn-danger"
-                           onclick="return confirm('Are you sure you want to delete this customer? This action cannot be undone.')">
-                            <i class="fas fa-trash mr-1"></i> Delete Customer
-                        </a>
+                        <form action="<?= site_url('admin/customers/delete/' . $customer['id']) ?>" method="post" class="d-inline"
+                              onsubmit="return confirm('Are you sure you want to delete this customer? This action cannot be undone.')">
+                            <?= csrf_field() ?>
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-trash mr-1"></i> Delete Customer
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>

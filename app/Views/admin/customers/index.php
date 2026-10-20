@@ -83,12 +83,14 @@
                                                     <a href="<?= site_url('admin/customers/edit/' . $customer['id']) ?>" class="btn btn-sm btn-warning" title="Edit">
                                                         <i class="fas fa-edit"></i>
                                                     </a>
-                                                    <a href="<?= site_url('admin/customers/delete/' . $customer['id']) ?>" 
-                                                       class="btn btn-sm btn-danger" 
-                                                       onclick="return confirm('Are you sure you want to delete this customer?')"
-                                                       title="Delete">
-                                                        <i class="fas fa-trash"></i>
-                                                    </a>
+                                                    <form action="<?= site_url('admin/customers/delete/' . $customer['id']) ?>" method="post" class="d-inline"
+                                                          onsubmit="return confirm('Are you sure you want to delete this customer?')"
+                                                          title="Delete">
+                                                        <?= csrf_field() ?>
+                                                        <button type="submit" class="btn btn-sm btn-danger">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+                                                    </form>
                                                     <form action="<?= site_url('admin/customers/reset-password/' . $customer['id']) ?>" method="post" class="d-inline"
                                                           onsubmit="return confirm('Reset password for <?= esc($customer['email'], 'js') ?> to the default password?')"
                                                           title="Reset password to default">
