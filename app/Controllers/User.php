@@ -456,6 +456,80 @@ class User extends BaseController
         }
     }
 
+    /**
+     * Forced / voluntary password change.
+     *
+     * GET  user/change-password — show the form.
+     * POST user/change-password — validate new_password == confirm_password,
+     *   reject the default password, save (md5+salt scheme, see UserModel),
+     *   clear force_password_change and restore full access.
+     */
+    public function changePassword()
+    {
+        if (!session()->get('logged_in')) {
+            return redirect()->to('login')->with('error', 'Please login to change your password');
+        }
+
+        $userId = session()->get('user_id');
+        $user = $this->userModel->getUserById($userId);
+
+        if (!$user) {
+            return redirect()->to('login')->with('error', 'Account not found. Please login again.');
+        }
+
+        $isForced = !empty($user['force_password_change'])
+            || (bool) session()->get('force_password_change');
+
+        if (strtolower($this->request->getMethod()) === 'post') {
+            $rules = [
+                'new_password'     => 'required|min_length[6]|max_length[100]',
+                'confirm_password' => 'required|matches[new_password]',
+            ];
+
+            if (!$this->validate($rules)) {
+                return redirect()->back()->withInput()
+                    ->with('error', 'Validation failed: ' . implode('; ', $this->validator->getErrors()))
+                    ->with('force_password_change', $isForced);
+            }
+
+            $newPassword = $this->request->getPost('new_password');
+
+            // New password must differ from the admin default password.
+            if ($newPassword === UserModel::DEFAULT_PASSWORD) {
+                return redirect()->back()->withInput()
+                    ->with('error', 'New password must not be the default password. Please choose a different one.')
+                    ->with('force_password_change', $isForced);
+            }
+
+            try {
+                if ($this->userModel->setNewPassword($userId, $newPassword)) {
+                    // Restore full access.
+                    session()->remove('force_password_change');
+
+                    return redirect()->to('user/dashboard')
+                        ->with('success', 'Password changed successfully! Welcome back.');
+                }
+
+                return redirect()->back()->withInput()
+                    ->with('error', 'Failed to update password. Please try again.')
+                    ->with('force_password_change', $isForced);
+            } catch (\Exception $e) {
+                log_message('error', 'Change password error for user #' . $userId . ': ' . $e->getMessage());
+
+                return redirect()->back()->withInput()
+                    ->with('error', 'Error updating password. Please try again.')
+                    ->with('force_password_change', $isForced);
+            }
+        }
+
+        return view('user/change_password', [
+            'user'                  => $user,
+            'is_forced'             => $isForced,
+            'validation'            => $this->validator ?? \Config\Services::validation(),
+            'force_password_change' => $isForced,
+        ]);
+    }
+
     public function getStatusIcon($status)
     {
         $icons = [

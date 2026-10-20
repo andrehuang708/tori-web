@@ -23,7 +23,7 @@ class Customers extends BaseController
         // Ensure admin is logged in
         $session = session();
         if (!$session->has('isAdminLoggedIn') || $session->get('isAdminLoggedIn') !== true) {
-            return redirect()->to('/admin/login')->with('error', 'You must be logged in as admin to access this page.');
+            return redirect()->to('admin/login')->with('error', 'You must be logged in as admin to access this page.');
         }
 
         $search = $this->request->getGet('search') ?? '';
@@ -61,17 +61,17 @@ class Customers extends BaseController
         // Ensure admin is logged in
         $session = session();
         if (!$session->has('isAdminLoggedIn') || $session->get('isAdminLoggedIn') !== true) {
-            return redirect()->to('/admin/login')->with('error', 'You must be logged in as admin to access this page.');
+            return redirect()->to('admin/login')->with('error', 'You must be logged in as admin to access this page.');
         }
 
         if (!$id) {
-            return redirect()->to('/admin/customers')->with('error', 'Customer ID is required');
+            return redirect()->to('admin/customers')->with('error', 'Customer ID is required');
         }
 
         $customer = $this->userModel->getUserById($id);
 
         if (!$customer) {
-            return redirect()->to('/admin/customers')->with('error', 'Customer not found');
+            return redirect()->to('admin/customers')->with('error', 'Customer not found');
         }
 
         $data = [
@@ -90,17 +90,17 @@ class Customers extends BaseController
         // Ensure admin is logged in
         $session = session();
         if (!$session->has('isAdminLoggedIn') || $session->get('isAdminLoggedIn') !== true) {
-            return redirect()->to('/admin/login')->with('error', 'You must be logged in as admin to access this page.');
+            return redirect()->to('admin/login')->with('error', 'You must be logged in as admin to access this page.');
         }
 
         if (!$id) {
-            return redirect()->to('/admin/customers')->with('error', 'Customer ID is required');
+            return redirect()->to('admin/customers')->with('error', 'Customer ID is required');
         }
 
         $customer = $this->userModel->getUserById($id);
 
         if (!$customer) {
-            return redirect()->to('/admin/customers')->with('error', 'Customer not found');
+            return redirect()->to('admin/customers')->with('error', 'Customer not found');
         }
 
         $data = [
@@ -119,17 +119,17 @@ class Customers extends BaseController
         // Ensure admin is logged in
         $session = session();
         if (!$session->has('isAdminLoggedIn') || $session->get('isAdminLoggedIn') !== true) {
-            return redirect()->to('/admin/login')->with('error', 'You must be logged in as admin to access this page.');
+            return redirect()->to('admin/login')->with('error', 'You must be logged in as admin to access this page.');
         }
 
         if (!$id) {
-            return redirect()->to('/admin/customers')->with('error', 'Customer ID is required');
+            return redirect()->to('admin/customers')->with('error', 'Customer ID is required');
         }
 
         $customer = $this->userModel->getUserById($id);
 
         if (!$customer) {
-            return redirect()->to('/admin/customers')->with('error', 'Customer not found');
+            return redirect()->to('admin/customers')->with('error', 'Customer not found');
         }
 
         $data = [
@@ -148,12 +148,56 @@ class Customers extends BaseController
 
         try {
             if ($this->userModel->updateUser($id, $data)) {
-                return redirect()->to('/admin/customers/detail/' . $id)->with('success', 'Customer updated successfully');
+                return redirect()->to('admin/customers/detail/' . $id)->with('success', 'Customer updated successfully');
             } else {
                 return redirect()->back()->withInput()->with('error', 'Failed to update customer');
             }
         } catch (\Exception $e) {
             return redirect()->back()->withInput()->with('error', 'Error updating customer: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Reset customer password to the default password.
+     * Flags the account so the customer must set a new password on next login.
+     *
+     * POST admin/customers/reset-password/(:num) — requires admin_auth filter.
+     */
+    public function resetPassword($id = null)
+    {
+        // Ensure admin is logged in
+        $session = session();
+        if (!$session->has('isAdminLoggedIn') || $session->get('isAdminLoggedIn') !== true) {
+            return redirect()->to('admin/login')->with('error', 'You must be logged in as admin to access this page.');
+        }
+
+        if (strtolower($this->request->getMethod()) !== 'post') {
+            return redirect()->to('admin/customers')->with('error', 'Invalid request method');
+        }
+
+        if (!$id) {
+            return redirect()->to('admin/customers')->with('error', 'Customer ID is required');
+        }
+
+        $customer = $this->userModel->getUserById($id);
+
+        if (!$customer) {
+            return redirect()->to('admin/customers')->with('error', 'Customer not found');
+        }
+
+        try {
+            if ($this->userModel->resetPasswordToDefault($id)) {
+                log_message('info', 'Admin ' . ($session->get('admin_email') ?? '?') . ' reset password for customer #' . $id);
+
+                return redirect()->to('admin/customers/detail/' . $id)
+                    ->with('success', 'Password reset to default ("' . UserModel::DEFAULT_PASSWORD . '"). Customer must set a new password on next login.');
+            }
+
+            return redirect()->back()->with('error', 'Failed to reset customer password');
+        } catch (\Exception $e) {
+            log_message('error', 'Reset customer password error: ' . $e->getMessage());
+
+            return redirect()->back()->with('error', 'Error resetting password: ' . $e->getMessage());
         }
     }
 
@@ -165,27 +209,27 @@ class Customers extends BaseController
         // Ensure admin is logged in
         $session = session();
         if (!$session->has('isAdminLoggedIn') || $session->get('isAdminLoggedIn') !== true) {
-            return redirect()->to('/admin/login')->with('error', 'You must be logged in as admin to access this page.');
+            return redirect()->to('admin/login')->with('error', 'You must be logged in as admin to access this page.');
         }
 
         if (!$id) {
-            return redirect()->to('/admin/customers')->with('error', 'Customer ID is required');
+            return redirect()->to('admin/customers')->with('error', 'Customer ID is required');
         }
 
         $customer = $this->userModel->getUserById($id);
 
         if (!$customer) {
-            return redirect()->to('/admin/customers')->with('error', 'Customer not found');
+            return redirect()->to('admin/customers')->with('error', 'Customer not found');
         }
 
         try {
             if ($this->userModel->deleteUser($id)) {
-                return redirect()->to('/admin/customers')->with('success', 'Customer deleted successfully');
+                return redirect()->to('admin/customers')->with('success', 'Customer deleted successfully');
             } else {
-                return redirect()->to('/admin/customers')->with('error', 'Failed to delete customer');
+                return redirect()->to('admin/customers')->with('error', 'Failed to delete customer');
             }
         } catch (\Exception $e) {
-            return redirect()->to('/admin/customers')->with('error', 'Error deleting customer: ' . $e->getMessage());
+            return redirect()->to('admin/customers')->with('error', 'Error deleting customer: ' . $e->getMessage());
         }
     }
 

@@ -162,7 +162,7 @@ class Cart extends BaseController
      */
     public function remove($itemId)
     {
-        // Handle AJAX requests (both GET and POST)
+        // Handle AJAX requests
         if ($this->request->isAJAX()) {
             if ($this->cart->remove($itemId)) {
                 return $this->jsonResponse([

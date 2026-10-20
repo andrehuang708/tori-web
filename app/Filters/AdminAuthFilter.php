@@ -18,7 +18,9 @@ class AdminAuthFilter implements FilterInterface
             $currentUrl = current_url(true);
             
             // Don't redirect if we're already on the login page
-            if ($currentUrl->getPath() !== '/admin/login') {
+            // (use str_ends_with so subfolder installs like /tori-web/admin/login work)
+            $path = rtrim($currentUrl->getPath(), '/');
+            if (! str_ends_with($path, '/admin/login') && $path !== 'admin/login') {
                 // Store the current URL for redirecting after login
                 $session->set('redirect_url', current_url());
                 

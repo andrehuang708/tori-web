@@ -26,7 +26,7 @@ class Auth extends \CodeIgniter\Controller
         
         // If already logged in, redirect to dashboard
         if ($session->has('isAdminLoggedIn') && $session->get('isAdminLoggedIn') === true) {
-            return redirect()->to('/admin/dashboard');
+            return redirect()->to('admin/dashboard');
         }
         
         $data = [
@@ -111,7 +111,7 @@ class Auth extends \CodeIgniter\Controller
         }
         
         // Redirect to intended URL or dashboard
-        $redirectUrl = session()->get('redirect_url') ?? '/admin/dashboard';
+        $redirectUrl = session()->get('redirect_url') ?? 'admin/dashboard';
         session()->remove('redirect_url');
         
         return redirect()->to($redirectUrl)->with('success', 'Welcome back, ' . $admin['name'] . '!');
@@ -147,7 +147,7 @@ class Auth extends \CodeIgniter\Controller
         
         log_message('debug', 'Redirecting to admin login');
         
-        return redirect()->to('/admin/login')->with('success', 'You have been logged out successfully.');
+        return redirect()->to('admin/login')->with('success', 'You have been logged out successfully.');
     }
     
     /**
@@ -208,7 +208,7 @@ class Auth extends \CodeIgniter\Controller
             $emailService->setMessage($message);
             
             if ($emailService->send()) {
-                return redirect()->to('/admin/forgot-password')
+                return redirect()->to('admin/forgot-password')
                     ->with('success', 'Password reset link has been sent to your email.');
             } else {
                 log_message('error', 'Failed to send reset password email to ' . $email);
@@ -217,7 +217,7 @@ class Auth extends \CodeIgniter\Controller
         }
         
         // Always show success message even if email doesn't exist (for security)
-        return redirect()->to('/admin/forgot-password')
+        return redirect()->to('admin/forgot-password')
             ->with('success', 'If your email exists in our system, you will receive a password reset link.');
     }
     
@@ -227,7 +227,7 @@ class Auth extends \CodeIgniter\Controller
     public function resetPassword($token = null)
     {
         if (empty($token)) {
-            return redirect()->to('/admin/forgot-password')->with('error', 'Invalid or expired reset token.');
+            return redirect()->to('admin/forgot-password')->with('error', 'Invalid or expired reset token.');
         }
         
         // Check if token is valid and not expired
@@ -236,7 +236,7 @@ class Auth extends \CodeIgniter\Controller
             ->first();
             
         if (!$reset) {
-            return redirect()->to('/admin/forgot-password')->with('error', 'Invalid or expired reset token.');
+            return redirect()->to('admin/forgot-password')->with('error', 'Invalid or expired reset token.');
         }
         
         $data = [
@@ -261,7 +261,7 @@ class Auth extends \CodeIgniter\Controller
             ->first();
             
         if (!$reset) {
-            return redirect()->to('/admin/forgot-password')->with('error', 'Invalid or expired reset token.');
+            return redirect()->to('admin/forgot-password')->with('error', 'Invalid or expired reset token.');
         }
         
         // Validate form
@@ -278,7 +278,7 @@ class Auth extends \CodeIgniter\Controller
         $admin = $this->adminModel->where('email', $reset['email'])->first();
         
         if (!$admin) {
-            return redirect()->to('/admin/login')->with('error', 'Admin account not found.');
+            return redirect()->to('admin/login')->with('error', 'Admin account not found.');
         }
         
         // Update password
@@ -305,7 +305,7 @@ class Auth extends \CodeIgniter\Controller
         $emailService->setMessage($message);
         $emailService->send();
         
-        return redirect()->to('/admin/login')
+        return redirect()->to('admin/login')
             ->with('success', 'Your password has been reset successfully. You can now login with your new password.');
     }
     

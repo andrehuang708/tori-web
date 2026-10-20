@@ -35,7 +35,7 @@
     <!-- Top Navigation -->
     <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
         <!-- Navbar Brand -->
-        <a class="navbar-brand ps-3" href="/admin/dashboard">
+        <a class="navbar-brand ps-3" href="<?= site_url('admin/dashboard') ?>">
             <?= getenv('app.name') ?: 'Tori Web' ?>
         </a>
         
@@ -62,12 +62,12 @@
                     <?= session()->get('admin_name') ?? 'Admin' ?>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                    <li><a class="dropdown-item" href="/admin/profile">Profile</a></li>
+                    <li><a class="dropdown-item" href="<?= site_url('admin/profile') ?>">Profile</a></li>
                     <li><hr class="dropdown-divider" /></li>
-                    <li><a class="dropdown-item" href="/admin/settings">Settings</a></li>
-                    <li><a class="dropdown-item" href="/admin/logs">Activity Log</a></li>
+                    <li><a class="dropdown-item" href="<?= site_url('admin/settings') ?>">Settings</a></li>
+                    <li><a class="dropdown-item" href="<?= site_url('admin/logs') ?>">Activity Log</a></li>
                     <li><hr class="dropdown-divider" /></li>
-                    <li><a class="dropdown-item" href="/admin/logout">Logout</a></li>
+                    <li><a class="dropdown-item" href="<?= site_url('admin/logout') ?>">Logout</a></li>
                 </ul>
             </li>
         </ul>
@@ -81,47 +81,47 @@
                     <div class="nav">
                         <div class="sb-sidenav-menu-heading">Menu Utama</div>
                         
-                        <a class="nav-link <?= (url_is('admin/dashboard*') ? 'active' : '') ?>" href="/admin/dashboard">
+                        <a class="nav-link <?= (url_is('admin/dashboard*') ? 'active' : '') ?>" href="<?= site_url('admin/dashboard') ?>">
                             <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
                             Dashboard
                         </a>
                         
                         <div class="sb-sidenav-menu-heading">Manajemen</div>
                         
-                        <a class="nav-link <?= (url_is('admin/orders*') ? 'active' : '') ?>" href="/admin/orders">
+                        <a class="nav-link <?= (url_is('admin/orders*') ? 'active' : '') ?>" href="<?= site_url('admin/orders') ?>">
                             <div class="sb-nav-link-icon"><i class="fas fa-shopping-cart"></i></div>
                             Pesanan
                             <div class="sb-sidenav-collapse-arrow"></div>
                         </a>
                         
-                        <a class="nav-link <?= (url_is('admin/products*') ? 'active' : '') ?>" href="/admin/products">
+                        <a class="nav-link <?= (url_is('admin/products*') ? 'active' : '') ?>" href="<?= site_url('admin/products') ?>">
                             <div class="sb-nav-link-icon"><i class="fas fa-box"></i></div>
                             Produk
                         </a>
                         
-                        <a class="nav-link <?= (url_is('admin/categories*') ? 'active' : '') ?>" href="/admin/categories">
+                        <a class="nav-link <?= (url_is('admin/categories*') ? 'active' : '') ?>" href="<?= site_url('admin/categories') ?>">
                             <div class="sb-nav-link-icon"><i class="fas fa-tags"></i></div>
                             Kategori
                         </a>
                         
-                        <a class="nav-link <?= (url_is('admin/customers*') ? 'active' : '') ?>" href="/admin/customers">
+                        <a class="nav-link <?= (url_is('admin/customers*') ? 'active' : '') ?>" href="<?= site_url('admin/customers') ?>">
                             <div class="sb-nav-link-icon"><i class="fas fa-users"></i></div>
                             Pelanggan
                         </a>
                         
-                        <a class="nav-link <?= (url_is('admin/payments*') ? 'active' : '') ?>" href="/admin/payments">
+                        <a class="nav-link <?= (url_is('admin/payments*') ? 'active' : '') ?>" href="<?= site_url('admin/payments') ?>">
                             <div class="sb-nav-link-icon"><i class="fas fa-credit-card"></i></div>
                             Pembayaran
                         </a>
                         
                         <div class="sb-sidenav-menu-heading">Lainnya</div>
                         
-                        <a class="nav-link <?= (url_is('admin/settings*') ? 'active' : '') ?>" href="/admin/settings">
+                        <a class="nav-link <?= (url_is('admin/settings*') ? 'active' : '') ?>" href="<?= site_url('admin/settings') ?>">
                             <div class="sb-nav-link-icon"><i class="fas fa-cog"></i></div>
                             Pengaturan
                         </a>
                         
-                        <a class="nav-link" href="/" target="_blank">
+                        <a class="nav-link" href="<?= site_url('/') ?>" target="_blank">
                             <div class="sb-nav-link-icon"><i class="fas fa-external-link-alt"></i></div>
                             Lihat Toko
                         </a>

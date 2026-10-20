@@ -54,13 +54,13 @@ class Categories extends BaseController
     public function edit($id = null)
     {
         if ($id === null) {
-            return redirect()->to('/admin/categories')->with('error', 'Category ID is required');
+            return redirect()->to('admin/categories')->with('error', 'Category ID is required');
         }
         
         $category = $this->categoryModel->find($id);
         
         if (!$category) {
-            return redirect()->to('/admin/categories')->with('error', 'Category not found');
+            return redirect()->to('admin/categories')->with('error', 'Category not found');
         }
         
         $data = [
@@ -118,7 +118,7 @@ class Categories extends BaseController
             }
             
             log_message('debug', 'Categories::save() - Redirecting with success');
-            return redirect()->to('/admin/categories')->with('success', $message);
+            return redirect()->to('admin/categories')->with('success', $message);
         } else {
             log_message('debug', 'Categories::save() - Validation failed');
             $errors = $this->validator->getErrors();
@@ -136,13 +136,13 @@ class Categories extends BaseController
     public function delete($id = null)
     {
         if ($id === null) {
-            return redirect()->to('/admin/categories')->with('error', 'Category ID is required');
+            return redirect()->to('admin/categories')->with('error', 'Category ID is required');
         }
         
         $category = $this->categoryModel->find($id);
         
         if (!$category) {
-            return redirect()->to('/admin/categories')->with('error', 'Category not found');
+            return redirect()->to('admin/categories')->with('error', 'Category not found');
         }
         
         // Check if category has products
@@ -150,7 +150,7 @@ class Categories extends BaseController
         $hasProducts = $productModel->where('category_id', $id)->countAllResults() > 0;
         
         if ($hasProducts) {
-            return redirect()->to('/admin/categories')->with('error', 'Cannot delete category with existing products');
+            return redirect()->to('admin/categories')->with('error', 'Cannot delete category with existing products');
         }
         
         // Delete category image if exists
@@ -164,6 +164,6 @@ class Categories extends BaseController
         // Delete category
         $this->categoryModel->delete($id);
         
-        return redirect()->to('/admin/categories')->with('success', 'Category deleted successfully');
+        return redirect()->to('admin/categories')->with('success', 'Category deleted successfully');
     }
 }

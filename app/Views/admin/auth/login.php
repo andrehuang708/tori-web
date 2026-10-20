@@ -22,7 +22,7 @@
                 </div>
             <?php endif; ?>
 
-            <form action="/admin/login" method="post">
+            <form action="<?= site_url('admin/login') ?>" method="post">
                 <input type="hidden" name="_csrf_token" value="<?= csrf_token() ?>">
                 
                 <div class="input-group mb-3">

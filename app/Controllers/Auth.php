@@ -112,12 +112,31 @@ class Auth extends BaseController
                 $user = $this->userModel->verifyUser($email, $password);
 
                 if ($user) {
+                    // Account flagged by an admin password reset: grant LIMITED
+                    // access — AuthFilter only allows user/change-password +
+                    // logout until a new password is set.
+                    if (!empty($user['force_password_change'])) {
+                        session()->set([
+                            'user_id'               => $user['id'],
+                            'user_email'            => $user['email'],
+                            'user_phone'            => $user['phone_number'],
+                            'first_name'            => $user['first_name'] ?? '',
+                            'logged_in'             => true,
+                            'force_password_change' => true,
+                        ]);
+
+                        return redirect()->to('user/change-password')
+                            ->with('error', 'Your password was reset by admin. Please set a new password to continue.')
+                            ->with('force_password_change', true);
+                    }
+
                     session()->set([
                         'user_id' => $user['id'],
                         'user_email' => $user['email'],
                         'user_phone' => $user['phone_number'],
                         'first_name' => $user['first_name'] ?? '',
-                        'logged_in' => true
+                        'logged_in' => true,
+                        'force_password_change' => false,
                     ]);
 
                     // Check if there's an intended URL after login

@@ -187,14 +187,29 @@
                     </li>
 
                     <!-- Orders -->
-                    <li class="nav-item">
-                        <a href="<?= site_url('admin/orders') ?>" class="nav-link <?= strpos(current_url(), 'admin/orders') !== false ? 'active' : '' ?>">
+                    <li class="nav-item has-treeview <?= strpos(current_url(), 'admin/orders') !== false || strpos(current_url(), 'admin/order-items') !== false ? 'menu-open' : '' ?>">
+                        <a href="#" class="nav-link <?= strpos(current_url(), 'admin/orders') !== false || strpos(current_url(), 'admin/order-items') !== false ? 'active' : '' ?>">
                             <i class="nav-icon fas fa-shopping-cart"></i>
                             <p>
                                 Orders
                                 <span class="badge badge-info right"><?= $total_orders ?? 0 ?></span>
+                                <i class="right fas fa-angle-left"></i>
                             </p>
                         </a>
+                        <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <a href="<?= site_url('admin/orders') ?>" class="nav-link <?= current_url() == site_url('admin/orders') || (strpos(current_url(), 'admin/orders') !== false && strpos(current_url(), 'admin/order-items') === false) ? 'active' : '' ?>">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>All Orders</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="<?= site_url('admin/order-items') ?>" class="nav-link <?= strpos(current_url(), 'admin/order-items') !== false ? 'active' : '' ?>">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Order Items</p>
+                                </a>
+                            </li>
+                        </ul>
                     </li>
 
                     <!-- Customers -->

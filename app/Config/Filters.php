@@ -74,7 +74,6 @@ class Filters extends BaseConfig
     public $filters = [
         'admin_auth' => [
             'before' => [
-                'admin',
                 'admin/dashboard',
                 'admin/products',
                 'admin/products/*',

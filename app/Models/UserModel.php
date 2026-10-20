@@ -8,7 +8,13 @@ class UserModel extends Model
 {
     protected $table = 'users';
     protected $primaryKey = 'id';
-    protected $allowedFields = ['email', 'password', 'phone_number', 'salt', 'first_name', 'last_name', 'email_notifications', 'sms_notifications'];
+    protected $allowedFields = ['email', 'password', 'phone_number', 'salt', 'first_name', 'last_name', 'email_notifications', 'sms_notifications', 'force_password_change'];
+
+    /**
+     * Default password assigned by an admin reset.
+     * Customer must change it on next login (see force_password_change).
+     */
+    public const DEFAULT_PASSWORD = 'P@ssword123';
     protected $useTimestamps = true;
     protected $createdField = 'created_at';
     protected $updatedField = 'updated_at';
@@ -130,6 +136,39 @@ class UserModel extends Model
     public function deleteUser($id)
     {
         return $this->delete($id);
+    }
+
+    /**
+     * Reset a customer's password to the default password and flag the
+     * account so the customer must set a new password on next login.
+     *
+     * NOTE: uses the project's existing md5(password . salt) scheme so
+     * verifyUser() keeps working (see Auth::register / verifyUser).
+     */
+    public function resetPasswordToDefault($id)
+    {
+        $salt = md5(uniqid(rand(), true));
+
+        return $this->update($id, [
+            'salt'                  => $salt,
+            'password'              => md5(static::DEFAULT_PASSWORD . $salt),
+            'force_password_change' => 1,
+        ]);
+    }
+
+    /**
+     * Set a new customer password (same md5+salt scheme) and clear the
+     * force-change flag, restoring full access.
+     */
+    public function setNewPassword($id, string $newPassword)
+    {
+        $salt = md5(uniqid(rand(), true));
+
+        return $this->update($id, [
+            'salt'                  => $salt,
+            'password'              => md5($newPassword . $salt),
+            'force_password_change' => 0,
+        ]);
     }
 
     /**

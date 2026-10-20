@@ -46,13 +46,13 @@ class Orders extends BaseController
     public function view($id = null)
     {
         if ($id === null) {
-            return redirect()->to('/admin/orders')->with('error', 'Order ID is required');
+            return redirect()->to('admin/orders')->with('error', 'Order ID is required');
         }
         
         $order = $this->orderModel->getOrderWithItems($id);
         
         if (!$order) {
-            return redirect()->to('/admin/orders')->with('error', 'Order not found');
+            return redirect()->to('admin/orders')->with('error', 'Order not found');
         }
         
         // Get payment history for this order
@@ -290,18 +290,18 @@ class Orders extends BaseController
     public function delete($id = null)
     {
         if ($id === null) {
-            return redirect()->to('/admin/orders')->with('error', 'Order ID is required');
+            return redirect()->to('admin/orders')->with('error', 'Order ID is required');
         }
         
         $order = $this->orderModel->find($id);
         
         if (!$order) {
-            return redirect()->to('/admin/orders')->with('error', 'Order not found');
+            return redirect()->to('admin/orders')->with('error', 'Order not found');
         }
         
         // Only allow deletion of cancelled orders
         if ($order['status'] !== 'cancelled') {
-            return redirect()->to('/admin/orders')->with('error', 'Only cancelled orders can be deleted');
+            return redirect()->to('admin/orders')->with('error', 'Only cancelled orders can be deleted');
         }
         
         // Start database transaction
@@ -318,13 +318,13 @@ class Orders extends BaseController
             // Commit transaction
             $db->transCommit();
             
-            return redirect()->to('/admin/orders')->with('success', 'Order deleted successfully');
+            return redirect()->to('admin/orders')->with('success', 'Order deleted successfully');
             
         } catch (\Exception $e) {
             // Rollback transaction on error
             $db->transRollback();
             log_message('error', 'Order deletion error: ' . $e->getMessage());
-            return redirect()->to('/admin/orders')->with('error', 'Failed to delete order');
+            return redirect()->to('admin/orders')->with('error', 'Failed to delete order');
         }
     }
     
@@ -499,13 +499,13 @@ class Orders extends BaseController
         
         if ($id === null) {
             log_message('error', 'Upload payment - No ID provided');
-            return redirect()->to('/admin/orders')->with('error', 'Order ID is required');
+            return redirect()->to('admin/orders')->with('error', 'Order ID is required');
         }
         
         $order = $this->orderModel->find($id);
         if (!$order) {
             log_message('error', 'Upload payment - Order not found: ' . $id);
-            return redirect()->to('/admin/orders')->with('error', 'Order not found');
+            return redirect()->to('admin/orders')->with('error', 'Order not found');
         }
         
         // Handle POST request
@@ -671,6 +671,29 @@ class Orders extends BaseController
             'success' => true,
             'message' => 'Payment rejected successfully'
         ]);
+    }
+    
+    /**
+     * View all order items from order_items table
+     */
+    public function orderItems()
+    {
+        $db = \Config\Database::connect();
+        
+        // Get all order items (DataTables will handle pagination)
+        $builder = $db->table('order_items oi');
+        $builder->select('oi.*, o.order_number, o.customer_name, o.customer_email, o.customer_phone, p.po_price_desc, o.status as order_status, o.created_at as order_date');
+        $builder->join('orders o', 'oi.order_id = o.id', 'left');
+        $builder->join('products p', 'oi.product_id = p.id', 'left');
+        $builder->orderBy('oi.id', 'DESC');
+        
+        $orderItems = $builder->get()->getResultArray();
+        
+        $data = [
+            'orderItems' => $orderItems
+        ];
+        
+        return view('admin/orders/order_items', $data);
     }
     
     /**

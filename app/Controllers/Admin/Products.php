@@ -44,7 +44,7 @@ class Products extends BaseController
     // Ensure admin is logged in
     $session = session();
     if (!$session->has('isAdminLoggedIn') || $session->get('isAdminLoggedIn') !== true) {
-        return redirect()->to('/admin/login')->with('error', 'You must be logged in as admin to access this page.');
+        return redirect()->to('admin/login')->with('error', 'You must be logged in as admin to access this page.');
     }
     
     // For regular page load, get all products
@@ -73,7 +73,7 @@ class Products extends BaseController
         // Ensure admin is logged in
         $session = session();
         if (!$session->has('isAdminLoggedIn') || $session->get('isAdminLoggedIn') !== true) {
-            return redirect()->to('/admin/login')->with('error', 'You must be logged in as admin to access this page.');
+            return redirect()->to('admin/login')->with('error', 'You must be logged in as admin to access this page.');
         }
         
         $data = [
@@ -91,17 +91,17 @@ class Products extends BaseController
         // Ensure admin is logged in
         $session = session();
         if (!$session->has('isAdminLoggedIn') || $session->get('isAdminLoggedIn') !== true) {
-            return redirect()->to('/admin/login')->with('error', 'You must be logged in as admin to access this page.');
+            return redirect()->to('admin/login')->with('error', 'You must be logged in as admin to access this page.');
         }
         
         if ($id === null) {
-            return redirect()->to('/admin/products')->with('error', 'Product ID is required');
+            return redirect()->to('admin/products')->with('error', 'Product ID is required');
         }
         
         $product = $this->productModel->find($id);
         
         if (!$product) {
-            return redirect()->to('/admin/products')->with('error', 'Product not found');
+            return redirect()->to('admin/products')->with('error', 'Product not found');
         }
         
         $data = [
@@ -120,7 +120,7 @@ class Products extends BaseController
         // Ensure admin is logged in
         $session = session();
         if (!$session->has('isAdminLoggedIn') || $session->get('isAdminLoggedIn') !== true) {
-            return redirect()->to('/admin/login')->with('error', 'You must be logged in as admin to access this page.');
+            return redirect()->to('admin/login')->with('error', 'You must be logged in as admin to access this page.');
         }
         
         $id = $this->request->getPost('id');
@@ -175,8 +175,11 @@ class Products extends BaseController
             $image = $this->request->getFile('image');
             if ($image && $image->isValid() && !$image->hasMoved()) {
                 $newName = $image->getRandomName();
-                $uploadPath = ROOTPATH . 'public/uploads/products';
-                
+                $uploadPath = ROOTPATH . '../public_html/uploads/products';
+                echo ROOTPATH . '../public_html/uploads/products';
+                echo base_url('uploads/products');
+                //$uploadPath = base_url('uploads/products');
+                log_message('debug', 'path' . $uploadPath);
                 // Create uploads directory if it doesn't exist
                 if (!is_dir($uploadPath)) {
                     mkdir($uploadPath, 0777, true);
@@ -187,7 +190,9 @@ class Products extends BaseController
                 
                 // Delete old image if exists
                 if (!empty($id) && !empty($this->request->getPost('old_image'))) {
-                    $oldImage = ROOTPATH . 'public/uploads/products/' . $this->request->getPost('old_image');
+                    $oldImage = ROOTPATH . '../public_html/uploads/products/' . $this->request->getPost('old_image');
+                    //$oldImage = base_url('uploads/products/'.$this->request->getPost('old_image'));
+                     log_message('debug', 'path old' . $oldImage);
                     if (file_exists($oldImage)) {
                         unlink($oldImage);
                     }
@@ -278,7 +283,7 @@ class Products extends BaseController
                 }
             }
             
-            return redirect()->to('/admin/products')->with('success', $message);
+            return redirect()->to('admin/products')->with('success', $message);
         } else {
             // Debug validation errors
             $validation = \Config\Services::validation();
@@ -295,13 +300,13 @@ class Products extends BaseController
     public function delete($id = null)
     {
         if ($id === null) {
-            return redirect()->to('/admin/products')->with('error', 'Product ID is required');
+            return redirect()->to('admin/products')->with('error', 'Product ID is required');
         }
         
         $product = $this->productModel->find($id);
         
         if (!$product) {
-            return redirect()->to('/admin/products')->with('error', 'Product not found');
+            return redirect()->to('admin/products')->with('error', 'Product not found');
         }
         
         // Check if product has orders
@@ -309,12 +314,15 @@ class Products extends BaseController
         $hasOrders = $orderItemModel->where('product_id', $id)->countAllResults() > 0;
         
         if ($hasOrders) {
-            return redirect()->to('/admin/products')->with('error', 'Cannot delete product with existing orders');
+            return redirect()->to('admin/products')->with('error', 'Cannot delete product with existing orders');
         }
         
         // Delete product image if exists
         if (!empty($product['image'])) {
-            $imagePath = ROOTPATH . 'public/' . $product['image'];
+            //$imagePath = ROOTPATH . 'public_html/' . $product['image'];
+            $imagePath = base_url('uploads/products/'. $product['image']);
+             log_message('debug', 'imagepath' . $$imagePath);
+            
             if (file_exists($imagePath)) {
                 unlink($imagePath);
             }
@@ -323,7 +331,7 @@ class Products extends BaseController
         // Delete product
         $this->productModel->delete($id);
         
-        return redirect()->to('/admin/products')->with('success', 'Product deleted successfully');
+        return redirect()->to('admin/products')->with('success', 'Product deleted successfully');
     }
     
     /**

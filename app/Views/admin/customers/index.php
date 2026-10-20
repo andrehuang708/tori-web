@@ -89,6 +89,14 @@
                                                        title="Delete">
                                                         <i class="fas fa-trash"></i>
                                                     </a>
+                                                    <form action="<?= site_url('admin/customers/reset-password/' . $customer['id']) ?>" method="post" class="d-inline"
+                                                          onsubmit="return confirm('Reset password for <?= esc($customer['email'], 'js') ?> to the default password?')"
+                                                          title="Reset password to default">
+                                                        <?= csrf_field() ?>
+                                                        <button type="submit" class="btn btn-sm btn-secondary">
+                                                            <i class="fas fa-key"></i>
+                                                        </button>
+                                                    </form>
                                                 </div>
                                             </td>
                                         </tr>

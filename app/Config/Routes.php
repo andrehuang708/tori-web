@@ -38,6 +38,8 @@ $routes->group('user', ['filter' => 'auth'], function($routes) {
     $routes->post('track-order', 'User::trackOrder');
     $routes->get('profile', 'User::profile');
     $routes->post('profile/update', 'User::updateProfile');
+    $routes->get('change-password', 'User::changePassword');
+    $routes->post('change-password', 'User::changePassword');
 });
 
 // Direct user routes (alternative paths)
@@ -137,11 +139,13 @@ $routes->group('admin', ['namespace' => 'App\Controllers\Admin'], function($rout
         $routes->get('customers/detail/(:num)', 'Customers::detail/$1');
         $routes->get('customers/edit/(:num)', 'Customers::edit/$1');
         $routes->post('customers/update/(:num)', 'Customers::update/$1');
+        $routes->post('customers/reset-password/(:num)', 'Customers::resetPassword/$1');
         $routes->get('customers/delete/(:num)', 'Customers::delete/$1');
         
         // Order Management
         $routes->get('orders', 'Orders::index');
         $routes->get('orders/view/(:num)', 'Orders::view/$1');
+        $routes->get('order-items', 'Orders::orderItems');
         $routes->get('orders/upload-payment/(:num)', 'Orders::uploadPayment/$1');
         $routes->post('orders/upload-payment/(:num)', 'Orders::uploadPayment/$1');
         $routes->post('orders/approve-payment/(:num)', 'Orders::approvePayment/$1');

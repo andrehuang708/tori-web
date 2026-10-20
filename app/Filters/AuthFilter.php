@@ -31,6 +31,19 @@ class AuthFilter implements FilterInterface
             session()->set('intended_url', current_url());
             return redirect()->to('login')->with('error', 'Please login to access this page');
         }
+
+        // Force-password-change gate: accounts flagged by an admin reset
+        // may ONLY visit the change-password page (or logout) until a new
+        // password is set. Everything else redirects to change-password.
+        if (session()->get('force_password_change')) {
+            $path = trim(uri_string(), '/');
+            $allowed = ['user/change-password', 'logout', 'login'];
+            if (! in_array($path, $allowed, true)) {
+                return redirect()->to('user/change-password')
+                    ->with('error', 'Please set a new password to continue.')
+                    ->with('force_password_change', true);
+            }
+        }
     }
 
     /**

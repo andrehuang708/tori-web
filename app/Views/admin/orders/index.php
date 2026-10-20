@@ -162,7 +162,7 @@ $(document).ready(function() {
         // Initialize DataTable with options
         $table.DataTable({
             responsive: true,
-            paging: false, // Using server-side pagination
+            paging: true, // Using server-side pagination
             searching: true,
             info: false,
             order: [[0, 'desc']], // Sort by first column (ID) in descending order
