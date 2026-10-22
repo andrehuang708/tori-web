@@ -175,10 +175,7 @@ class Products extends BaseController
             $image = $this->request->getFile('image');
             if ($image && $image->isValid() && !$image->hasMoved()) {
                 $newName = $image->getRandomName();
-                $uploadPath = ROOTPATH . '../public_html/uploads/products';
-                echo ROOTPATH . '../public_html/uploads/products';
-                echo base_url('uploads/products');
-                //$uploadPath = base_url('uploads/products');
+                $uploadPath = FCPATH . 'uploads' . DIRECTORY_SEPARATOR . 'products';
                 log_message('debug', 'path' . $uploadPath);
                 // Create uploads directory if it doesn't exist
                 if (!is_dir($uploadPath)) {
@@ -190,9 +187,8 @@ class Products extends BaseController
                 
                 // Delete old image if exists
                 if (!empty($id) && !empty($this->request->getPost('old_image'))) {
-                    $oldImage = ROOTPATH . '../public_html/uploads/products/' . $this->request->getPost('old_image');
-                    //$oldImage = base_url('uploads/products/'.$this->request->getPost('old_image'));
-                     log_message('debug', 'path old' . $oldImage);
+                    $oldImage = FCPATH . 'uploads' . DIRECTORY_SEPARATOR . 'products' . DIRECTORY_SEPARATOR . basename($this->request->getPost('old_image'));
+                    log_message('debug', 'path old' . $oldImage);
                     if (file_exists($oldImage)) {
                         unlink($oldImage);
                     }
