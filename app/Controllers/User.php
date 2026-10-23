@@ -327,7 +327,33 @@ class User extends BaseController
             throw new \CodeIgniter\Exceptions\PageNotFoundException('File not found');
         }
 
-        $mime = mime_content_type($filePath);
+        // mime_content_type() requires the PHP fileinfo extension, which may
+        // be disabled on production. Detect MIME safely with fallbacks.
+        $mime = null;
+        if (function_exists('\mime_content_type')) {
+            $mime = \mime_content_type($filePath);
+        }
+        if (empty($mime) && function_exists('\finfo_open')) {
+            $finfo = \finfo_open(FILEINFO_MIME_TYPE);
+            if ($finfo) {
+                $detected = \finfo_file($finfo, $filePath);
+                \finfo_close($finfo);
+                if (!empty($detected)) {
+                    $mime = $detected;
+                }
+            }
+        }
+        if (empty($mime)) {
+            $extensionMimes = [
+                'jpg'  => 'image/jpeg',
+                'jpeg' => 'image/jpeg',
+                'png'  => 'image/png',
+                'gif'  => 'image/gif',
+                'webp' => 'image/webp',
+            ];
+            $extension = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
+            $mime = $extensionMimes[$extension] ?? 'application/octet-stream';
+        }
         header('Content-Type: ' . $mime);
         header('Content-Length: ' . filesize($filePath));
         readfile($filePath);
